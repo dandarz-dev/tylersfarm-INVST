@@ -950,10 +950,11 @@
         </div>
       </div>
 
-      <div class="card-box" style="display: flex; flex-direction: column; gap: 15px;">
+      <div class="card-box" style="display: flex; flex-direction: column; gap: 20px;">
         <div>
           <h3 style="margin-top:0; font-size: 1.1rem;">Fund Breakdown Details</h3>
           <p style="font-size: 0.9rem;"><strong>Total Pool Capital (Members Only):</strong> ₱<span id="mPoolContribution">0.00</span></p>
+		  <p style="font-size: 0.9rem; color: #f59e0b;"><strong>Total Loan Release (Overall):</strong> ₱<span id="mTotalLoanRelease">0.00</span></p>
           <p style="font-size: 0.9rem;"><strong>Total Interest Distributed:</strong> ₱<span id="mPoolInterest">0.00</span></p>
           <p style="font-size: 0.9rem;"><strong>Gross Interest Earned:</strong> ₱<span id="mGrossInterest">0.00</span></p>
           <p style="font-size: 0.9rem; color: #d97706;"><strong>Referral / Override Value:</strong> <span id="mReferralRewardDetail">₱0.00</span></p>
@@ -1235,6 +1236,79 @@
         </div>
       </div>
 
+      <!-- ADDITIONAL SECTION: DEBTORS WITH LOAN & PAYMENT MONITORING -->
+      <div class="card-box" style="background: #fffdf4; border-color: #fef08a; margin-top: 25px;">
+        <h2 class="section-title" style="color: #b45309;"><i class="fa-solid fa-file-invoice-dollar"></i> Debtors, Loan & Payment Monitoring</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Manage debtor accounts, track active loan balances, repayment schedules, and monitor amortization/payments.</p>
+        
+        <!-- Add Debtor & Loan Form -->
+        <div class="grid-7" style="margin-bottom: 16px;">
+          <div class="form-group">
+            <label for="debtorName">Debtor Full Name</label>
+            <input type="text" id="debtorName" placeholder="e.g., Maria Santos">
+          </div>
+          <div class="form-group">
+            <label for="debtorLoanAmount">Loan Principal Amount (₱)</label>
+            <input type="number" id="debtorLoanAmount" placeholder="0.00" min="0" step="any">
+          </div>
+          <div class="form-group">
+            <label for="debtorInterestRate">Loan Interest Rate (%) / Period</label>
+            <input type="number" id="debtorInterestRate" placeholder="e.g., 5" min="0" value="5" step="any">
+          </div>
+          <div class="form-group">
+            <label for="debtorTermMonths">Term (Months)</label>
+            <input type="number" id="debtorTermMonths" placeholder="12" min="1" value="12">
+          </div>
+          <div class="form-group">
+            <label for="debtorDateIssued">Date Issued</label>
+            <input type="date" id="debtorDateIssued">
+          </div>
+          <div class="form-group">
+            <label for="debtorContact">Contact / Phone</label>
+            <input type="text" id="debtorContact" placeholder="e.g., 09123456789">
+          </div>
+        </div>
+        <button class="btn" style="background-color: #d97706; margin-bottom: 20px;" onclick="addDebtorLoan()"><i class="fa-solid fa-user-plus"></i> Add Debtor & Issue Loan</button>
+
+        <!-- Debtors Summary Cards -->
+        <div class="dashboard-grid" style="margin-bottom: 16px;">
+          <div class="dash-card orange">
+            <div class="label">Total Active Loan Principal</div>
+            <div class="value">₱<span id="totalDebtorPrincipal">0.00</span></div>
+          </div>
+          <div class="dash-card red">
+            <div class="label">Total Outstanding Balance</div>
+            <div class="value">₱<span id="totalDebtorOutstanding">0.00</span></div>
+          </div>
+          <div class="dash-card green">
+            <div class="label">Total Payments Collected</div>
+            <div class="value">₱<span id="totalDebtorCollected">0.00</span></div>
+          </div>
+        </div>
+
+        <!-- Debtors Table -->
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Debtor Name & Contact</th>
+                <th>Date Issued</th>
+                <th class="text-right">Principal (₱)</th>
+                <th class="text-center">Interest / Term</th>
+                <th class="text-right">Total Payable (₱)</th>
+                <th class="text-right">Total Paid (₱)</th>
+                <th class="text-right">Balance Due (₱)</th>
+                <th class="text-center">Status</th>
+                <th class="text-center" style="width: 150px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="debtorsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- DISTRIBUTION SUMMARY -->
       <div class="action-bar">
         <h2 class="section-title" style="margin: 0;"><i class="fa-solid fa-chart-pie"></i> Distribution Summary (Separated Members Pool & Investors)</h2>
@@ -1251,6 +1325,11 @@
         <div class="dash-card teal">
           <div class="label">Total Investor Capital</div>
           <div class="value">₱<span id="totalInvestorCapitalDisplay">0.00</span></div>
+        </div>
+        <!-- TOTAL LOAN RELEASE CARD -->
+        <div class="dash-card orange">
+          <div class="label">Total Loan Release</div>
+          <div class="value">₱<span id="totalLoanReleaseDisplay">0.00</span></div>
         </div>
         <div class="dash-card green">
           <div class="label">Gross Distributed Yield</div>
@@ -1291,27 +1370,6 @@
         </table>
       </div>
 
-      <!-- CREDENTIALS MANAGEMENT -->
-      <div class="card-box" style="margin-top: 20px;">
-        <h2 class="section-title"><i class="fa-solid fa-user-gear"></i> 4. Manage Credentials & Profiles</h2>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>User Name</th>
-                <th>Role</th>
-                <th>Birthdate & Age</th>
-                <th>Address</th>
-                <th>Username</th>
-                <th>Password</th>
-                <th class="text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="credentialsTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
       <!-- SECURITY SETTINGS -->
       <div class="card-box" style="background: #fffbe3; border-color: #fef08a; margin-top: 20px;">
         <h2 class="section-title" style="color: #854d0e;"><i class="fa-solid fa-user-shield"></i> Admin Security Settings</h2>
@@ -1331,7 +1389,7 @@
   </div>
 
   <div class="app-footer">
-    App developed by: DanDarz &copy;2026
+    App developed by: Dandarz &copy;2026
   </div>
 </div>
 
@@ -1443,24 +1501,21 @@
   }
 
   let members = [];
+  let debtors = []; 
   let adminPassword = "admin";
   let currentAnnouncement = "Welcome to Tyler's Integrated Farm!";
   let currentLoggedInMember = null;
 
-  // --- AUTOMATED RATE & LOAN TERM CALCULATION ENGINE ---
   function calculateInvestorReturns(capital, rate, termMonths, rateType) {
     const r = (parseFloat(rate) || 0) / 100;
-    const t = (parseFloat(termMonths) || 12) / 12; // Time in years
+    const t = (parseFloat(termMonths) || 12) / 12;
     let returns = 0;
 
     if (rateType === 'Fixed rate') {
-      // Simple Interest Formula: Principal * Rate * Time
       returns = capital * r * t;
     } else if (rateType === 'Diminishing rate') {
-      // Diminishing Balance / Reducing Balance Interest Formula (Average Principal over Term)
       returns = capital * r * t * 0.5;
     } else if (rateType === 'Compound rates') {
-      // Compound Interest Formula: Principal * (1 + Rate)^Time - Principal
       returns = capital * (Math.pow(1 + r, t) - 1);
     } else {
       returns = capital * r * t;
@@ -1468,7 +1523,6 @@
     return isNaN(returns) ? 0 : returns;
   }
 
-  // --- AUTO-UPDATE INTEREST RATE BASED ON TERM ---
   function updateInvestorRateBasedOnTerm() {
     const termSelect = document.getElementById('investorLoanTerm');
     const rateInput = document.getElementById('investorInterestRate');
@@ -1486,7 +1540,6 @@
     rateInput.value = recommendedRate;
   }
 
-  // --- AUTO-UPDATE MEMBERS POOL CONTRIBUTION & TOTALS (EXCLUDING INVESTORS) ---
   function recalculatePoolAndTotals() {
     let totalMemberPool = 0;
     let totalInvestorCapital = 0;
@@ -1513,7 +1566,6 @@
     return totalMemberPool;
   }
 
-  // --- ADMIN PAYOUT CONFIRMATION WITH AUTO-DEDUCT ---
   function adminConfirmNetBalancePayment(memberId) {
     const member = members.find(m => m.id === memberId);
     if (!member) return;
@@ -1590,6 +1642,10 @@
     localStorage.setItem('tif_fund_members', JSON.stringify(members));
   }
 
+  function saveDebtorsToLocal() {
+    localStorage.setItem('tif_fund_debtors', JSON.stringify(debtors));
+  }
+
   function loadLocalData() {
     const localSettings = localStorage.getItem('tif_fund_settings');
     if (localSettings) {
@@ -1611,18 +1667,17 @@
 
     const localMembers = localStorage.getItem('tif_fund_members');
     if (localMembers) {
-      try {
-        members = JSON.parse(localMembers);
-      } catch (e) {
-        members = [];
-      }
-    } else {
-      members = [];
-    }
+      try { members = JSON.parse(localMembers); } catch (e) { members = []; }
+    } else { members = []; }
+
+    const localDebtors = localStorage.getItem('tif_fund_debtors');
+    if (localDebtors) {
+      try { debtors = JSON.parse(localDebtors); } catch (e) { debtors = []; }
+    } else { debtors = []; }
 
     populateTopupMemberDropdown();
     renderTable();
-    renderCredentialsTable();
+    renderDebtorsTable();
   }
 
   function checkExistingSession() {
@@ -1640,6 +1695,7 @@
         document.getElementById('userInfoHeader').classList.remove('hidden');
         document.getElementById('loggedInUserLabel').innerText = "Admin Portal";
         document.getElementById('topupDate').valueAsDate = new Date();
+        document.getElementById('debtorDateIssued').valueAsDate = new Date();
         renderAdminCharts();
       } else if (sessionData.role === 'member') {
         const member = members.find(m => m.id === sessionData.memberId || m.username.toLowerCase() === sessionData.username.toLowerCase());
@@ -1671,7 +1727,6 @@
     }
   }
 
-  // AUTO-SYNC FIREBASE LISTENER (LIVE UPDATES)
   function listenToFirebaseData() {
     loadLocalData();
 
@@ -1703,7 +1758,6 @@
         saveMembersToLocal();
         populateTopupMemberDropdown();
         renderTable();
-        renderCredentialsTable();
 
         if (currentLoggedInMember) {
           const updated = members.find(m => m.id === currentLoggedInMember.id);
@@ -1721,16 +1775,222 @@
         console.warn("Firestore members fallback:", err);
         checkExistingSession();
       });
+
+      db.collection('debtors').onSnapshot(snapshot => {
+        debtors = [];
+        snapshot.forEach(doc => {
+          debtors.push({ id: doc.id, ...doc.data() });
+        });
+        saveDebtorsToLocal();
+        renderDebtorsTable();
+      }, err => console.warn("Firestore debtors fallback:", err));
+
     } else {
       checkExistingSession();
     }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('debtorDateIssued').valueAsDate = new Date();
     listenToFirebaseData();
   });
 
-  // --- EXPORT & IMPORT BACKUP FUNCTIONS ---
+  // --- DEBTOR & LOAN MONITORING FUNCTIONS ---
+  function addDebtorLoan() {
+    const name = document.getElementById('debtorName').value.trim();
+    const principal = parseFloat(document.getElementById('debtorLoanAmount').value) || 0;
+    const interestRate = parseFloat(document.getElementById('debtorInterestRate').value) || 0;
+    const termMonths = parseInt(document.getElementById('debtorTermMonths').value) || 0;
+    const dateIssued = document.getElementById('debtorDateIssued').value || new Date().toISOString().split('T')[0];
+    const contact = document.getElementById('debtorContact').value.trim() || 'N/A';
+
+    if (!name || principal <= 0) {
+      Swal.fire('Error', 'Please enter valid debtor name and principal loan amount.', 'error');
+      return;
+    }
+
+    const newDebtor = {
+      id: 'debtor_' + Date.now(),
+      name,
+      principal,
+      interestRate,
+      termMonths,
+      dateIssued,
+      contact,
+      payments: [] 
+    };
+
+    debtors.push(newDebtor);
+    saveDebtorsToLocal();
+
+    if (firebaseEnabled && db) {
+      db.collection('debtors').doc(newDebtor.id).set(newDebtor)
+        .catch(err => console.warn("Firebase debtor sync error:", err));
+    }
+
+    document.getElementById('debtorName').value = '';
+    document.getElementById('debtorLoanAmount').value = '';
+    document.getElementById('debtorContact').value = '';
+
+    renderDebtorsTable();
+    renderTable(); // Re-render admin table to update Total Loan Release and Net Combined Fund
+    Swal.fire('Success!', 'Debtor loan recorded and auto-added to Total Loan Release.', 'success');
+  }
+
+  function renderDebtorsTable() {
+    const tbody = document.getElementById('debtorsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    let totalPrincipal = 0;
+    let totalOutstanding = 0;
+    let totalCollected = 0;
+
+    if (debtors.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center" style="color:var(--text-muted); padding:20px;">No debtor loan records found.</td></tr>`;
+      document.getElementById('totalDebtorPrincipal').innerText = '0.00';
+      document.getElementById('totalDebtorOutstanding').innerText = '0.00';
+      document.getElementById('totalDebtorCollected').innerText = '0.00';
+      
+      const loanReleaseEl = document.getElementById('totalLoanReleaseDisplay');
+      if (loanReleaseEl) loanReleaseEl.innerText = '0.00';
+      return;
+    }
+
+    debtors.forEach(d => {
+      const principal = parseFloat(d.principal) || 0;
+      const rate = parseFloat(d.interestRate) || 0;
+      const term = parseInt(d.termMonths) || 12;
+
+      const totalInterest = principal * (rate / 100) * (term / 12);
+      const totalPayable = principal + totalInterest;
+
+      let totalPaid = 0;
+      if (d.payments && Array.isArray(d.payments)) {
+        d.payments.forEach(p => { totalPaid += (parseFloat(p.amount) || 0); });
+      }
+
+      const balanceDue = Math.max(0, totalPayable - totalPaid);
+      const isFullyPaid = balanceDue <= 0;
+
+      totalPrincipal += principal;
+      totalOutstanding += balanceDue;
+      totalCollected += totalPaid;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong>${d.name}</strong>
+          <span class="small-subtext"><i class="fa-solid fa-phone"></i> ${d.contact || 'N/A'}</span>
+        </td>
+        <td>${d.dateIssued}</td>
+        <td class="text-right">₱${principal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+        <td class="text-center">${rate}% / ${term} mo</td>
+        <td class="text-right text-bold">₱${totalPayable.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+        <td class="text-right text-green">₱${totalPaid.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+        <td class="text-right text-red text-bold">₱${balanceDue.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</td>
+        <td class="text-center">
+          ${isFullyPaid ? '<span class="badge-fully-paid">Fully Paid</span>' : '<span class="badge-pay-note">Active Loan</span>'}
+        </td>
+        <td class="text-center" style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+          <button class="btn btn-edit" style="padding: 4px 8px; font-size: 0.75rem;" onclick="recordDebtorPayment('${d.id}')" title="Record Payment"><i class="fa-solid fa-peso-sign"></i> Pay</button>
+          <button class="btn btn-outline-danger" style="padding: 4px 8px;" onclick="deleteDebtor('${d.id}')" title="Delete Record"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('totalDebtorPrincipal').innerText = totalPrincipal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('totalDebtorOutstanding').innerText = totalOutstanding.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('totalDebtorCollected').innerText = totalCollected.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    const loanReleaseEl = document.getElementById('totalLoanReleaseDisplay');
+    if (loanReleaseEl) {
+      loanReleaseEl.innerText = totalPrincipal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+  }
+
+  async function recordDebtorPayment(debtorId) {
+    const debtor = debtors.find(d => d.id === debtorId);
+    if (!debtor) return;
+
+    const { value: formValues } = await Swal.fire({
+      title: `Record Payment & Auto-Deduct for ${debtor.name}`,
+      html: `
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 10px;">
+          <div>
+            <label style="font-weight:600; font-size:0.85rem; color:#64748b; margin-bottom:4px; display:block;">Payment Amount (₱):</label>
+            <input id="swal-pay-amount" type="number" class="swal2-input" style="margin:0; width:100%;" placeholder="0.00" min="0" step="any">
+          </div>
+          <div>
+            <label style="font-weight:600; font-size:0.85rem; color:#64748b; margin-bottom:4px; display:block;">Payment Date:</label>
+            <input id="swal-pay-date" type="date" class="swal2-input" style="margin:0; width:100%;" value="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div>
+            <label style="font-weight:600; font-size:0.85rem; color:#64748b; margin-bottom:4px; display:block;">Note / Official Receipt Ref:</label>
+            <input id="swal-pay-note" type="text" class="swal2-input" style="margin:0; width:100%;" placeholder="e.g., Monthly Amortization #1">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Record Payment',
+      confirmButtonColor: '#16a34a',
+      preConfirm: () => {
+        const amount = parseFloat(document.getElementById('swal-pay-amount').value) || 0;
+        const date = document.getElementById('swal-pay-date').value;
+        const note = document.getElementById('swal-pay-note').value.trim() || 'Amortization Payment';
+        if (amount <= 0) {
+          Swal.showValidationMessage('Please enter a valid payment amount greater than zero.');
+          return false;
+        }
+        return { amount, date, note };
+      }
+    });
+
+    if (formValues) {
+      if (!debtor.payments) debtor.payments = [];
+      debtor.payments.push(formValues);
+
+      saveDebtorsToLocal();
+
+      if (firebaseEnabled && db) {
+        db.collection('debtors').doc(debtorId).update({
+          payments: debtor.payments
+        }).catch(err => console.warn("Firebase debtor payment sync error:", err));
+      }
+
+      renderDebtorsTable();
+      renderTable(); // Recalculate Net Combined Fund accurately after payment deduction
+      Swal.fire('Payment Recorded & Auto-Deducted!', `Successfully added payment of ₱${formValues.amount.toLocaleString()} and updated Net Combined Fund.`, 'success');
+    }
+  }
+
+  function deleteDebtor(debtorId) {
+    Swal.fire({
+      title: 'Delete Debtor Record?',
+      text: 'Are you sure you want to remove this debtor and all associated loan/payment records?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      confirmButtonText: 'Yes, Delete'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        debtors = debtors.filter(d => d.id !== debtorId);
+        saveDebtorsToLocal();
+
+        if (firebaseEnabled && db) {
+          db.collection('debtors').doc(debtorId).delete()
+            .catch(err => console.warn("Firebase debtor delete error:", err));
+        }
+
+        renderDebtorsTable();
+        renderTable();
+        Swal.fire('Deleted!', 'Debtor record has been removed.', 'success');
+      }
+    });
+  }
+
   function exportDataBackup() {
     const settingsData = {
       overallInterest: parseFloat(document.getElementById('overallInterest').value) || 0,
@@ -1745,7 +2005,8 @@
 
     const backupPayload = {
       settings: settingsData,
-      members: members
+      members: members,
+      debtors: debtors
     };
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
@@ -1784,6 +2045,11 @@
         members = importedData.members;
         saveMembersToLocal();
 
+        if (importedData.debtors && Array.isArray(importedData.debtors)) {
+          debtors = importedData.debtors;
+          saveDebtorsToLocal();
+        }
+
         if (importedData.settings) {
           const s = importedData.settings;
           if (s.overallInterest !== undefined) document.getElementById('overallInterest').value = s.overallInterest;
@@ -1817,7 +2083,7 @@
         saveMembersToLocal();
         populateTopupMemberDropdown();
         renderTable();
-        renderCredentialsTable();
+        renderDebtorsTable();
 
         Swal.fire({
           icon: 'success',
@@ -1839,7 +2105,6 @@
     reader.readAsText(file);
   }
 
-  // EDIT MEMBER DETAILS FUNCTION
   async function editMemberDetails(memberId) {
     const member = members.find(m => m.id === memberId);
     if (!member) return;
@@ -1894,12 +2159,6 @@
           return false;
         }
 
-        const duplicate = members.find(m => m.id !== memberId && m.username && m.username.toLowerCase() === username.toLowerCase());
-        if (duplicate) {
-          Swal.showValidationMessage('Username already taken by another user!');
-          return false;
-        }
-
         return { name, role, birthdate, address, username, password };
       }
     });
@@ -1915,618 +2174,981 @@
       saveMembersToLocal();
 
       if (firebaseEnabled && db) {
-        try {
-          await db.collection('members').doc(memberId).update({
-            name: member.name,
-            role: member.role,
-            birthdate: member.birthdate,
-            address: member.address,
-            username: member.username,
-            password: member.password
-          });
-        } catch (err) {
-          console.warn("Firestore update profile warning:", err);
-        }
+        db.collection('members').doc(memberId).update({
+          name: member.name,
+          role: member.role,
+          birthdate: member.birthdate,
+          address: member.address,
+          username: member.username,
+          password: member.password
+        }).catch(err => console.warn("Firebase edit member warning:", err));
       }
 
+      renderTable();
       populateTopupMemberDropdown();
-      renderTable();
-      renderCredentialsTable();
 
-      if (currentLoggedInMember && currentLoggedInMember.id === memberId) {
-        currentLoggedInMember = member;
-        if (member.role === 'investor') renderInvestorDashboard(member);
-        else renderMemberDashboard(member);
-      }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Profile Updated!',
-        text: 'Member details have been updated successfully.',
-        confirmButtonColor: '#16a34a'
-      });
+      Swal.fire('Updated!', 'Member profile updated successfully.', 'success');
     }
   }
 
-  // NET BALANCE PAY OUT FUNCTION WITH PASSWORD & 2X CONFIRMATION
-  async function requestNetBalancePayout() {
-    if (!currentLoggedInMember) return;
-    const member = currentLoggedInMember;
+  let calcExpression = "0";
+  let calcHistoryText = "";
 
-    const firstCheck = await Swal.fire({
-      title: 'Request Pay Out?',
-      text: `Do you want to request a full pay out for your Net Balance?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Continue',
-      confirmButtonColor: '#16a34a'
-    });
+  function toggleCalculator() {
+    const calc = document.getElementById('floatingCalc');
+    calc.classList.toggle('active');
+  }
 
-    if (!firstCheck.isConfirmed) return;
+  function appendCalc(val) {
+    if (calcExpression === "0" && val !== '.') {
+      calcExpression = val;
+    } else {
+      calcExpression += val;
+    }
+    updateCalcDisplay();
+  }
 
-    const secondCheck = await Swal.fire({
-      title: 'Security & 2nd Confirmation',
-      html: `
-        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 12px;">Please enter your account password and confirm to proceed with payout request.</p>
-        <input type="password" id="swal-payout-pass" class="swal2-input" placeholder="Enter your password" style="margin: 0 auto; width: 100%;">
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Confirm 2x Payout Request',
-      confirmButtonColor: '#16a34a',
-      focusConfirm: false,
-      preConfirm: () => {
-        const passVal = document.getElementById('swal-payout-pass').value.trim();
-        if (!passVal) {
-          Swal.showValidationMessage('Password is required!');
-          return false;
-        }
-        if (passVal !== member.password) {
-          Swal.showValidationMessage('Incorrect password!');
-          return false;
-        }
-        return true;
-      }
-    });
+  function clearCalc() {
+    calcExpression = "0";
+    calcHistoryText = "";
+    document.getElementById('calcHistory').innerText = calcHistoryText;
+    updateCalcDisplay();
+  }
 
-    if (secondCheck.isConfirmed) {
-      member.netBalancePayoutRequested = true;
-      member.netBalanceFullyPaid = false;
-      saveMembersToLocal();
+  function updateCalcDisplay() {
+    document.getElementById('calcDisplay').value = calcExpression;
+  }
 
-      if (firebaseEnabled && db) {
-        db.collection('members').doc(member.id).update({ 
-          netBalancePayoutRequested: true,
-          netBalanceFullyPaid: false
-        }).catch(err => console.warn(err));
-      }
-
-      if (member.role === 'investor') {
-        renderInvestorDashboard(member);
-      } else {
-        renderMemberDashboard(member);
-      }
-      renderTable();
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Pay Out Requested!',
-        text: 'Your request has been successfully sent. Admin notification is now active on the admin panel.',
-        confirmButtonColor: '#16a34a'
-      });
+  function calculateCalc() {
+    try {
+      let sanitized = calcExpression.replace(/×/g, '*').replace(/÷/g, '/');
+      let result = eval(sanitized);
+      calcHistoryText = calcExpression + " =";
+      document.getElementById('calcHistory').innerText = calcHistoryText;
+      calcExpression = String(result);
+      updateCalcDisplay();
+    } catch (err) {
+      calcExpression = "Error";
+      updateCalcDisplay();
+      setTimeout(clearCalc, 1200);
     }
   }
 
-  function requestCashOut(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    const pointVal = parseFloat(document.getElementById('pointValueInput').value) || 100;
-    const bonusVal = (member.referralPoints || 0) * pointVal;
-
-    if (bonusVal < 500 && member.role !== 'investor') {
-      Swal.fire('Minimum Threshold Not Met', 'Minimum cash out threshold is ₱500.00.', 'warning');
-      return;
-    }
-
-    Swal.fire({
-      title: 'Request Cash Out?',
-      text: `Are you sure you want to cash out your balance/bonus? An administrator will process your payment.`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#16a34a',
-      confirmButtonText: 'Yes, Proceed'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: 'Enter Password to Confirm',
-          text: `Please enter your password to confirm cash out.`,
-          input: 'password',
-          inputAttributes: {
-            autocapitalize: 'off',
-            autocorrect: 'off',
-            placeholder: 'Enter your password'
-          },
-          showCancelButton: true,
-          confirmButtonText: 'Confirm Cash Out',
-          confirmButtonColor: '#16a34a',
-          preConfirm: (passwordInput) => {
-            if (!passwordInput) {
-              Swal.showValidationMessage('Password is required!');
-              return false;
-            }
-            if (passwordInput !== member.password) {
-              Swal.showValidationMessage('Incorrect password!');
-              return false;
-            }
-            return true;
-          }
-        }).then((pwdResult) => {
-          if (pwdResult.isConfirmed) {
-            member.cashoutRequested = true;
-            saveMembersToLocal();
-
-            if (firebaseEnabled && db) {
-              db.collection('members').doc(memberId).update({ cashoutRequested: true }).catch(err => console.warn(err));
-            }
-
-            if(member.role === 'investor') {
-              renderInvestorDashboard(member);
-            } else {
-              renderMemberDashboard(member);
-            }
-            renderTable();
-
-            Swal.fire('Cash Out Requested!', 'Administrator has been notified with a PAY note for your account.', 'success');
-          }
-        });
+  function calcFunc(type) {
+    try {
+      let val = parseFloat(calcExpression) || 0;
+      if (type === 'sqrt') {
+        calcHistoryText = `&radic;(${calcExpression})`;
+        calcExpression = String(Math.sqrt(val));
+      } else if (type === 'sqr') {
+        calcHistoryText = `(${calcExpression})&sup2;`;
+        calcExpression = String(val * val);
+      } else if (type === 'pm') {
+        calcExpression = String(val * -1);
       }
-    });
-  }
-
-  function adminPayBonus(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    Swal.fire({
-      title: 'Confirm Payment',
-      text: `Are you sure you want to payout/settle cash out for ${member.name}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      confirmButtonText: 'Yes, Confirm Payout'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        member.referralPoints = 0;
-        member.cashoutRequested = false;
-
-        saveMembersToLocal();
-
-        if (firebaseEnabled && db) {
-          db.collection('members').doc(memberId).update({
-            referralPoints: 0,
-            cashoutRequested: false
-          }).catch(err => console.warn(err));
-        }
-
-        renderTable();
-        if (currentLoggedInMember && currentLoggedInMember.id === memberId) {
-          currentLoggedInMember = member;
-          if(member.role === 'investor') renderInvestorDashboard(member);
-          else renderMemberDashboard(member);
-        }
-
-        Swal.fire('Paid & Settled!', `Cash out request for ${member.name} has been processed.`, 'success');
-      }
-    });
-  }
-
-  function showGcashQrModal() {
-    Swal.fire({
-      title: 'GCASH Payment QR Code',
-      html: `
-        <div style="text-align: center;">
-          <img src="gcash.PNG" alt="GCash QR Code" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); margin-bottom: 8px;" onerror="this.src='https://via.placeholder.com/250?text=GCash+QR'">
-          <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 8px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; margin-bottom: 12px;">
-            <i class="fa-solid fa-mobile-screen-button"></i> GCash No. 0966 5896709 D...O D
-          </div>
-          <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 10px 12px; border-radius: 6px; font-weight: 600; font-size: 0.88rem;">
-            <i class="fa-solid fa-triangle-exclamation"></i> Please save your gcash payment receipt for future reference!
-          </div>
-        </div>
-      `,
-      showCloseButton: true,
-      confirmButtonText: 'Close',
-      confirmButtonColor: '#005ce6'
-    });
-  }
-
-  function downloadMemberPortalDetails() {
-    if (!currentLoggedInMember) {
-      Swal.fire('Error', 'No user logged in.', 'error');
-      return;
+      document.getElementById('calcHistory').innerText = calcHistoryText;
+      updateCalcDisplay();
+    } catch (e) {
+      calcExpression = "Error";
+      updateCalcDisplay();
     }
-
-    const member = currentLoggedInMember;
-    const dateStr = new Date().toISOString().split('T')[0];
-    
-    const fileContent = `=====================================================
-TYLER'S INTEGRATED FARM
-PORTAL STATEMENT OF ACCOUNT (${member.role ? member.role.toUpperCase() : 'MEMBER'})
-Date Generated: ${new Date().toLocaleString()}
-=====================================================
-
-USER PROFILE DETAILS
------------------------------------------------------
-Full Name:     ${member.name}
-Role:          ${member.role || 'member'}
-Birth Date:    ${member.birthdate || 'N/A'} (Age: ${calculateAge(member.birthdate)})
-Address:       ${member.address || 'N/A'}
-Username:      ${member.username || 'N/A'}
-
-=====================================================
-Thank you for investing with Tyler's Integrated Farm!
-`;
-
-    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' });
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = `TIF_Statement_${member.name.replace(/\s+/g, '_')}_${dateStr}.txt`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Statement Downloaded!',
-      text: 'Your statement of account has been downloaded successfully.',
-      confirmButtonColor: '#16a34a'
-    });
-  }
-
-  async function saveFundSettings() {
-    const overallInterest = parseFloat(document.getElementById('overallInterest').value) || 0;
-    const customContrib = document.getElementById('customTotalContribution').value;
-    const pointValue = parseFloat(document.getElementById('pointValueInput').value) || 100;
-    const level1Points = parseFloat(document.getElementById('level1Points').value) || 0;
-    const level2Points = parseFloat(document.getElementById('level2Points').value) || 0;
-    const level3Points = parseFloat(document.getElementById('level3Points').value) || 0;
-    
-    const settingsData = {
-      overallInterest: overallInterest,
-      customTotalContribution: customContrib,
-      pointValue: pointValue,
-      level1Points: level1Points,
-      level2Points: level2Points,
-      level3Points: level3Points,
-      adminPassword: adminPassword,
-      announcement: currentAnnouncement
-    };
-
-    localStorage.setItem('tif_fund_settings', JSON.stringify(settingsData));
-
-    if (firebaseEnabled && db) {
-      try {
-        await db.collection('settings').doc('fund').set(settingsData, { merge: true });
-      } catch (err) {
-        console.warn("Firestore sync warning:", err);
-      }
-    }
-    return true;
-  }
-
-  async function btnSaveFundSettings() {
-    const confirm = await Swal.fire({
-      title: 'Save Fund Settings?',
-      text: 'Do you want to apply and save these settings and referral reward levels?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#1e40af',
-      confirmButtonText: 'Yes, Save Settings'
-    });
-
-    if (confirm.isConfirmed) {
-      await saveFundSettings();
-      Swal.fire({
-        icon: 'success',
-        title: 'Settings Saved!',
-        text: 'Fund settings have been successfully updated.',
-        confirmButtonColor: '#1e40af'
-      });
-      renderTable();
-    }
-  }
-
-  async function changeAdminPassword() {
-    const newPass = document.getElementById('newAdminPass').value.trim();
-    if (!newPass) {
-      Swal.fire('Warning', 'Please enter a new password.', 'warning');
-      return;
-    }
-    
-    const confirm = await Swal.fire({
-      title: 'Change Admin Password?',
-      text: 'Are you sure you want to update the admin password?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d97706',
-      confirmButtonText: 'Yes, Change Password'
-    });
-
-    if (confirm.isConfirmed) {
-      adminPassword = newPass;
-      await saveFundSettings();
-      document.getElementById('newAdminPass').value = '';
-      Swal.fire({
-        icon: 'success',
-        title: 'Password Updated!',
-        text: 'Admin password was successfully changed.',
-        confirmButtonColor: '#d97706'
-      });
-    }
-  }
-
-  function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount).replace('PHP', '₱');
-  }
-
-  function getMemberTotalContribution(member) {
-    if (!member.history || member.history.length === 0) return 0;
-    return member.history.reduce((sum, item) => sum + item.amount, 0);
-  }
-
-  function calculateTimebasedContributions(memberList = null) {
-    const targetMembers = memberList || members;
-    const now = new Date();
-    
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
-    startOfWeek.setHours(0,0,0,0);
-
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-    let weekly = 0;
-    let monthly = 0;
-    let yearly = 0;
-
-    targetMembers.forEach(m => {
-      if (m.history && Array.isArray(m.history)) {
-        m.history.forEach(h => {
-          if (h.date) {
-            const hDate = new Date(h.date);
-            const amt = parseFloat(h.amount) || 0;
-
-            if (hDate >= startOfWeek) weekly += amt;
-            if (hDate >= startOfMonth) monthly += amt;
-            if (hDate >= startOfYear) yearly += amt;
-          }
-        });
-      }
-    });
-
-    return { weekly, monthly, yearly };
   }
 
   function switchTab(tab) {
-    document.getElementById('tabMember').classList.toggle('active', tab === 'member');
-    document.getElementById('tabInvestor').classList.toggle('active', tab === 'investor');
-    document.getElementById('tabAdmin').classList.toggle('active', tab === 'admin');
-    
-    document.getElementById('memberLoginForm').classList.toggle('hidden', tab !== 'member');
-    document.getElementById('investorLoginForm').classList.toggle('hidden', tab !== 'investor');
-    document.getElementById('adminLoginForm').classList.toggle('hidden', tab !== 'admin');
+    document.getElementById('tabMember').classList.remove('active');
+    document.getElementById('tabInvestor').classList.remove('active');
+    document.getElementById('tabAdmin').classList.remove('active');
+
+    document.getElementById('memberLoginForm').classList.add('hidden');
+    document.getElementById('investorLoginForm').classList.add('hidden');
+    document.getElementById('adminLoginForm').classList.add('hidden');
+
+    if (tab === 'member') {
+      document.getElementById('tabMember').classList.add('active');
+      document.getElementById('memberLoginForm').classList.remove('hidden');
+    } else if (tab === 'investor') {
+      document.getElementById('tabInvestor').classList.add('active');
+      document.getElementById('investorLoginForm').classList.remove('hidden');
+    } else if (tab === 'admin') {
+      document.getElementById('tabAdmin').classList.add('active');
+      document.getElementById('adminLoginForm').classList.remove('hidden');
+    }
   }
 
   function loginAsAdmin() {
     const pass = document.getElementById('adminPass').value;
     if (pass === adminPassword) {
       localStorage.setItem('tif_active_session', JSON.stringify({ role: 'admin' }));
-
       document.getElementById('loginSection').classList.add('hidden');
       document.getElementById('adminDashboard').classList.remove('hidden');
-      document.getElementById('memberDashboard').classList.add('hidden');
-      document.getElementById('investorDashboard').classList.add('hidden');
       document.getElementById('userInfoHeader').classList.remove('hidden');
       document.getElementById('loggedInUserLabel').innerText = "Admin Portal";
       document.getElementById('topupDate').valueAsDate = new Date();
-
+      document.getElementById('debtorDateIssued').valueAsDate = new Date();
       renderAdminCharts();
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Access Denied',
-        text: 'Incorrect admin password!'
-      });
-    }
-  }
-
-  function populateTopupMemberDropdown() {
-    const select = document.getElementById('topupMemberSelect');
-    const referrerSelect = document.getElementById('referrerSelect');
-
-    if (select) {
-      select.innerHTML = '';
-      members.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = `${m.name} (${m.role || 'member'})`;
-        select.appendChild(opt);
-      });
-    }
-
-    if (referrerSelect) {
-      referrerSelect.innerHTML = '<option value="">-- None (Direct Join) --</option>';
-      members.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = m.name;
-        referrerSelect.appendChild(opt);
-      });
+      Swal.fire('Error', 'Incorrect Admin Password', 'error');
     }
   }
 
   function loginAsMember() {
-    const uInput = document.getElementById('memberUsername').value.trim();
-    const pInput = document.getElementById('memberPassword').value.trim();
+    const user = document.getElementById('memberUsername').value.trim().toLowerCase();
+    const pass = document.getElementById('memberPassword').value.trim();
 
-    if (!uInput || !pInput) {
-      Swal.fire('Warning', 'Please enter both Username and Password.', 'warning');
-      return;
-    }
-
-    const member = members.find(m => (!m.role || m.role === 'member') && m.username && m.username.toLowerCase() === uInput.toLowerCase() && m.password === pInput);
-
-    if (!member) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Login Failed',
-        text: 'Incorrect Username or Password for Member Portal!'
-      });
-      return;
-    }
-
-    currentLoggedInMember = member;
-
-    localStorage.setItem('tif_active_session', JSON.stringify({
-      role: 'member',
-      memberId: member.id,
-      username: member.username
-    }));
-
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('memberDashboard').classList.remove('hidden');
-    document.getElementById('investorDashboard').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.add('hidden');
-    document.getElementById('userInfoHeader').classList.remove('hidden');
-    document.getElementById('loggedInUserLabel').innerText = `Member: ${member.name}`;
-
-    renderMemberDashboard(member);
-
-    if (currentAnnouncement) {
-      Swal.fire({
-        icon: 'info',
-        title: '📢 ANNOUNCEMENT',
-        html: `<p style="text-align: left; font-size: 1rem;">${currentAnnouncement.replace(/\n/g, '<br>')}</p>`,
-        confirmButtonText: 'Got it',
-        confirmButtonColor: '#1e40af'
-      });
+    const member = members.find(m => m.username && m.username.toLowerCase() === user && m.password === pass && m.role !== 'investor');
+    if (member) {
+      currentLoggedInMember = member;
+      localStorage.setItem('tif_active_session', JSON.stringify({ role: 'member', memberId: member.id, username: member.username }));
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('memberDashboard').classList.remove('hidden');
+      document.getElementById('userInfoHeader').classList.remove('hidden');
+      document.getElementById('loggedInUserLabel').innerText = `Member: ${member.name}`;
+      renderMemberDashboard(member);
+    } else {
+      Swal.fire('Error', 'Invalid Member Username or Password', 'error');
     }
   }
 
   function loginAsInvestor() {
-    const uInput = document.getElementById('investorUsername').value.trim();
-    const pInput = document.getElementById('investorPassword').value.trim();
+    const user = document.getElementById('investorUsername').value.trim().toLowerCase();
+    const pass = document.getElementById('investorPassword').value.trim();
 
-    if (!uInput || !pInput) {
-      Swal.fire('Warning', 'Please enter both Investor Username and Password.', 'warning');
-      return;
+    const investor = members.find(m => m.username && m.username.toLowerCase() === user && m.password === pass && m.role === 'investor');
+    if (investor) {
+      currentLoggedInMember = investor;
+      localStorage.setItem('tif_active_session', JSON.stringify({ role: 'investor', memberId: investor.id, username: investor.username }));
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('investorDashboard').classList.remove('hidden');
+      document.getElementById('userInfoHeader').classList.remove('hidden');
+      document.getElementById('loggedInUserLabel').innerText = `Investor: ${investor.name}`;
+      renderInvestorDashboard(investor);
+    } else {
+      Swal.fire('Error', 'Invalid Investor Username or Password', 'error');
     }
+  }
 
-    const investor = members.find(m => m.role === 'investor' && m.username && m.username.toLowerCase() === uInput.toLowerCase() && m.password === pInput);
+  function logout() {
+    localStorage.removeItem('tif_active_session');
+    currentLoggedInMember = null;
+    location.reload();
+  }
 
-    if (!investor) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Login Failed',
-        text: 'Incorrect Username or Password for Investor Portal!'
+  function getMemberTotalContribution(m) {
+    let total = parseFloat(m.initialContribution) || 0;
+    if (m.history && Array.isArray(m.history)) {
+      m.history.forEach(h => {
+        total += (parseFloat(h.amount) || 0);
       });
+    }
+    return total;
+  }
+
+  function calculateMemberOverridePoints(member) {
+    let points = parseFloat(member.initialPoints) || 0;
+    const l1PtsSetting = parseFloat(document.getElementById('level1Points').value) || 1;
+    const l2PtsSetting = parseFloat(document.getElementById('level2Points').value) || 0.5;
+    const l3PtsSetting = parseFloat(document.getElementById('level3Points').value) || 0.25;
+
+    const level1Downlines = members.filter(m => m.referrerId === member.id);
+    points += level1Downlines.length * l1PtsSetting;
+
+    const level2Downlines = members.filter(m => level1Downlines.some(l1 => l1.id === m.referrerId));
+    points += level2Downlines.length * l2PtsSetting;
+
+    const level3Downlines = members.filter(m => level2Downlines.some(l2 => l2.id === m.referrerId));
+    points += level3Downlines.length * l3PtsSetting;
+
+    return points;
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('memberTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const overallInterest = parseFloat(document.getElementById('overallInterest').value) || 0;
+    const customContribInput = parseFloat(document.getElementById('customTotalContribution').value);
+    const pointVal = parseFloat(document.getElementById('pointValueInput').value) || 100;
+
+    let totalMemberPool = 0;
+    let totalInvestorCap = 0;
+
+    members.forEach(m => {
+      const cap = getMemberTotalContribution(m);
+      if (m.role === 'investor') {
+        totalInvestorCap += cap;
+      } else {
+        totalMemberPool += cap;
+      }
+    });
+
+    const activePoolContribution = !isNaN(customContribInput) ? customContribInput : totalMemberPool;
+
+    let totalInterestDisplay = 0;
+    let totalFeesDisplay = 0;
+
+    const regularMembers = members.filter(m => m.role !== 'investor');
+    const investors = members.filter(m => m.role === 'investor');
+
+    // 1. Render regular members
+    regularMembers.forEach(m => {
+      const cap = getMemberTotalContribution(m);
+      const share = activePoolContribution > 0 ? (cap / activePoolContribution) * 100 : 0;
+      const grossInterest = (share / 100) * overallInterest;
+      const feePercent = m.fee !== undefined ? parseFloat(m.fee) || 0 : 0;
+      const feeAmount = (feePercent / 100) * grossInterest;
+      const netInterest = grossInterest - feeAmount;
+
+      const overridePts = calculateMemberOverridePoints(m);
+      const overrideVal = overridePts * pointVal;
+      const newNetBalance = cap + netInterest + overrideVal;
+
+      totalInterestDisplay += netInterest;
+      totalFeesDisplay += feeAmount;
+
+      const age = calculateAge(m.birthdate);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong>${m.name}</strong>
+          <span class="small-subtext">Username: ${m.username || 'N/A'}</span>
+          <span class="badge-role-member">Member</span>
+        </td>
+        <td>
+          ${m.address || 'N/A'}
+          <span class="small-subtext">Age: ${age}</span>
+        </td>
+        <td class="text-right text-bold">₱${cap.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="text-center">${overridePts} pts <span class="small-subtext">(₱${overrideVal.toFixed(2)})</span></td>
+        <td class="text-center">${share.toFixed(2)}%</td>
+        <td class="text-center">
+          <input type="number" class="inline-fee-input" value="${feePercent}" min="0" max="100" step="any" onchange="updateMemberFee('${m.id}', this.value)">%
+        </td>
+        <td class="text-right text-green">₱${netInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="text-right text-bold" style="color:var(--primary-color);">₱${newNetBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="text-center" style="display:flex; gap:6px; justify-content:center; align-items:center;">
+          ${m.netBalancePayoutRequested && !m.netBalanceFullyPaid ? `<button class="btn btn-admin-pay" onclick="adminConfirmNetBalancePayment('${m.id}')">Pay Out</button>` : ''}
+          <button class="btn btn-edit" onclick="editMemberDetails('${m.id}')" title="Edit Profile"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-outline-danger" onclick="deleteMember('${m.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // 2. Render investors
+    investors.forEach(inv => {
+      const cap = getMemberTotalContribution(inv);
+      const rate = parseFloat(inv.investorInterestRate) || 15;
+      const term = parseInt(inv.investorLoanTerm) || 12;
+      const rateType = inv.investorRateType || 'Fixed rate';
+      const returns = calculateInvestorReturns(cap, rate, term, rateType);
+      const feePercent = inv.fee !== undefined ? parseFloat(inv.fee) || 0 : 0;
+      const feeAmount = (feePercent / 100) * returns;
+      const netReturns = returns - feeAmount;
+      const valuation = cap + netReturns;
+
+      const age = calculateAge(inv.birthdate);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong>${inv.name}</strong>
+          <span class="small-subtext">Username: ${inv.username || 'N/A'}</span>
+          <span class="badge-role-investor">Investor</span>
+        </td>
+        <td>
+          ${inv.address || 'N/A'}
+          <span class="small-subtext">Age: ${age}</span>
+        </td>
+        <td class="text-right text-bold">₱${cap.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="text-center">0 pts</td>
+        <td class="text-center">${term} mos (${rateType} @ ${rate}%)</td>
+        <td class="text-center">
+          <input type="number" class="inline-fee-input" value="${feePercent}" min="0" max="100" step="any" onchange="updateMemberFee('${inv.id}', this.value)">%
+        </td>
+        <td class="text-right text-green">₱${netReturns.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="text-right text-bold" style="color:#0d9488;">₱${valuation.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td class="text-center" style="display:flex; gap:6px; justify-content:center; align-items:center;">
+          <button class="btn btn-edit" onclick="editMemberDetails('${inv.id}')" title="Edit Profile"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-outline-danger" onclick="deleteMember('${inv.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Update Summary Cards
+    document.getElementById('totalContributionDisplay').innerText = activePoolContribution.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const totalInvDisp = document.getElementById('totalInvestorCapitalDisplay');
+    if (totalInvDisp) totalInvDisp.innerText = totalInvestorCap.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    document.getElementById('totalInterestDisplay').innerText = totalInterestDisplay.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('totalFeesDisplay').innerText = totalFeesDisplay.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    // Calculate Net Combined Fund accurately (Pool Capital + Investor Capital + Overall Interest - Fees - Outstanding Debtor Loans)
+    let totalOutstandingDebts = 0;
+    debtors.forEach(d => {
+      const p = parseFloat(d.principal) || 0;
+      const r = parseFloat(d.interestRate) || 0;
+      const t = parseInt(d.termMonths) || 12;
+      const totalPayable = p + (p * (r / 100) * (t / 12));
+      let paid = 0;
+      if (d.payments) d.payments.forEach(pay => paid += (parseFloat(pay.amount) || 0));
+      totalOutstandingDebts += Math.max(0, totalPayable - paid);
+    });
+
+    let totalFund = activePoolContribution + totalInvestorCap + overallInterest - totalFeesDisplay - totalOutstandingDebts;
+    document.getElementById('totalFundDisplay').innerText = totalFund.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    renderAdminCharts();
+  }
+
+  function addMember() {
+    const name = document.getElementById('memberName').value.trim();
+    const contrib = parseFloat(document.getElementById('memberContribInput').value) || 0;
+    const role = document.getElementById('memberRoleSelect').value;
+    const fee = parseFloat(document.getElementById('memberFee').value) || 0;
+    const referrerId = document.getElementById('referrerSelect').value;
+    const initialPoints = parseFloat(document.getElementById('memberPointsInput').value) || 0;
+    const birthdate = document.getElementById('memberBirthdate').value;
+    const address = document.getElementById('memberAddress').value.trim();
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim() || 'password123';
+
+    let invRate = 15;
+    let invTerm = 12;
+    let invRateType = 'Fixed rate';
+
+    if (role === 'investor') {
+      invRate = parseFloat(document.getElementById('investorInterestRate').value) || 15;
+      invTerm = parseInt(document.getElementById('investorLoanTerm').value) || 12;
+      invRateType = document.getElementById('investorRateType').value || 'Fixed rate';
+    }
+
+    if (!name || !username) {
+      Swal.fire('Error', 'Please enter Full Name and Username.', 'error');
       return;
     }
 
-    currentLoggedInMember = investor;
+    if (members.some(m => m.username && m.username.toLowerCase() === username.toLowerCase())) {
+      Swal.fire('Error', 'Username already exists! Please choose another one.', 'error');
+      return;
+    }
 
-    localStorage.setItem('tif_active_session', JSON.stringify({
-      role: 'investor',
-      memberId: investor.id,
-      username: investor.username
-    }));
+    const newObj = {
+      id: 'm_' + Date.now(),
+      name,
+      initialContribution: contrib,
+      role,
+      fee,
+      referrerId: referrerId || null,
+      initialPoints,
+      birthdate,
+      address,
+      username,
+      password,
+      investorInterestRate: invRate,
+      investorLoanTerm: invTerm,
+      investorRateType: invRateType,
+      history: [{
+        date: new Date().toISOString().split('T')[0],
+        type: 'Initial Contribution',
+        amount: contrib
+      }]
+    };
 
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('investorDashboard').classList.remove('hidden');
-    document.getElementById('memberDashboard').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.add('hidden');
-    document.getElementById('userInfoHeader').classList.remove('hidden');
-    document.getElementById('loggedInUserLabel').innerText = `Investor: ${investor.name}`;
+    members.push(newObj);
+    saveMembersToLocal();
 
-    renderInvestorDashboard(investor);
+    if (firebaseEnabled && db) {
+      db.collection('members').doc(newObj.id).set(newObj)
+        .catch(err => console.warn("Firebase add member error:", err));
+    }
 
-    if (currentAnnouncement) {
-      Swal.fire({
-        icon: 'info',
-        title: '📢 ANNOUNCEMENT',
-        html: `<p style="text-align: left; font-size: 1rem;">${currentAnnouncement.replace(/\n/g, '<br>')}</p>`,
-        confirmButtonText: 'Got it',
-        confirmButtonColor: '#0d9488'
+    document.getElementById('memberName').value = '';
+    document.getElementById('memberContribInput').value = '';
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('memberBirthdate').value = '';
+    document.getElementById('memberAddress').value = '';
+
+    populateTopupMemberDropdown();
+    renderTable();
+    Swal.fire('Success!', 'New user added successfully.', 'success');
+  }
+
+  function deleteMember(id) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        members = members.filter(m => m.id !== id);
+        saveMembersToLocal();
+
+        if (firebaseEnabled && db) {
+          db.collection('members').doc(id).delete()
+            .catch(err => console.warn("Firebase delete member error:", err));
+        }
+
+        populateTopupMemberDropdown();
+        renderTable();
+        Swal.fire('Deleted!', 'User has been deleted.', 'success');
+      }
+    });
+  }
+
+  function updateMemberFee(id, val) {
+    const m = members.find(item => item.id === id);
+    if (m) {
+      m.fee = parseFloat(val) || 0;
+      saveMembersToLocal();
+      if (firebaseEnabled && db) {
+        db.collection('members').doc(id).update({ fee: m.fee }).catch(err => console.warn(err));
+      }
+    }
+  }
+
+  function populateTopupMemberDropdown() {
+    const topupSelect = document.getElementById('topupMemberSelect');
+    const referrerSelect = document.getElementById('referrerSelect');
+    if (!topupSelect || !referrerSelect) return;
+
+    topupSelect.innerHTML = '';
+    referrerSelect.innerHTML = '<option value="">-- None (Direct Join) --</option>';
+
+    members.forEach(m => {
+      const opt1 = document.createElement('option');
+      opt1.value = m.id;
+      opt1.textContent = `${m.name} (${m.role === 'investor' ? 'Investor' : 'Member'})`;
+      topupSelect.appendChild(opt1);
+
+      if (m.role !== 'investor') {
+        const opt2 = document.createElement('option');
+        opt2.value = m.id;
+        opt2.textContent = m.name;
+        referrerSelect.appendChild(opt2);
+      }
+    });
+  }
+
+  function addContributionTopUp() {
+    const selectId = document.getElementById('topupMemberSelect').value;
+    const amount = parseFloat(document.getElementById('topupAmount').value) || 0;
+    const date = document.getElementById('topupDate').value || new Date().toISOString().split('T')[0];
+
+    if (!selectId || amount <= 0) {
+      Swal.fire('Error', 'Please select a user and enter a valid top-up amount.', 'error');
+      return;
+    }
+
+    const m = members.find(item => item.id === selectId);
+    if (m) {
+      if (!m.history) m.history = [];
+      m.history.push({
+        date,
+        type: m.role === 'investor' ? 'Investment Tranche Top-up' : 'Additional Contribution',
+        amount
+      });
+
+      saveMembersToLocal();
+
+      if (firebaseEnabled && db) {
+        db.collection('members').doc(m.id).update({ history: m.history })
+          .catch(err => console.warn("Firebase topup update error:", err));
+      }
+
+      document.getElementById('topupAmount').value = '';
+      renderTable();
+      Swal.fire('Success!', `Successfully added ₱${amount.toLocaleString()} to ${m.name}.`, 'success');
+    }
+  }
+
+  function btnSaveFundSettings() {
+    const overallInterest = parseFloat(document.getElementById('overallInterest').value) || 0;
+    const customTotalContribution = document.getElementById('customTotalContribution').value;
+    const pointValue = parseFloat(document.getElementById('pointValueInput').value) || 100;
+    const level1Points = parseFloat(document.getElementById('level1Points').value) || 0;
+    const level2Points = parseFloat(document.getElementById('level2Points').value) || 0;
+    const level3Points = parseFloat(document.getElementById('level3Points').value) || 0;
+
+    const settingsObj = {
+      overallInterest,
+      customTotalContribution,
+      pointValue,
+      level1Points,
+      level2Points,
+      level3Points,
+      adminPassword,
+      announcement: currentAnnouncement
+    };
+
+    localStorage.setItem('tif_fund_settings', JSON.stringify(settingsObj));
+
+    if (firebaseEnabled && db) {
+      db.collection('settings').doc('fund').set(settingsObj, { merge: true })
+        .catch(err => console.warn("Firebase settings save warning:", err));
+    }
+
+    renderTable();
+    Swal.fire('Saved!', 'Fund settings updated successfully.', 'success');
+  }
+
+  function saveAnnouncement() {
+    const text = document.getElementById('announcementText').value.trim();
+    currentAnnouncement = text;
+    btnSaveFundSettings();
+    Swal.fire('Announcement Saved!', 'Popup announcement updated successfully.', 'success');
+  }
+
+  function changeAdminPassword() {
+    const newPass = document.getElementById('newAdminPass').value.trim();
+    if (!newPass) {
+      Swal.fire('Error', 'Please enter a new password.', 'error');
+      return;
+    }
+    adminPassword = newPass;
+    document.getElementById('newAdminPass').value = '';
+    btnSaveFundSettings();
+    Swal.fire('Success', 'Admin password changed successfully.', 'success');
+  }
+
+  function filterTables() {
+    const query = document.getElementById('tableSearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#reportTable tbody tr');
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(query) ? '' : 'none';
+    });
+  }
+
+  // --- RENDER MEMBER DASHBOARD ---
+  function renderMemberDashboard(m) {
+    document.getElementById('memberNameDisplay').innerText = m.name;
+    document.getElementById('mBirthDate').innerText = m.birthdate || 'N/A';
+    document.getElementById('mAge').innerText = calculateAge(m.birthdate);
+    document.getElementById('mAddress').innerText = m.address || 'N/A';
+
+    const totalContrib = getMemberTotalContribution(m);
+    document.getElementById('mContribution').innerText = totalContrib.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    const overallInterest = parseFloat(document.getElementById('overallInterest').value) || 0;
+    const customContribInput = parseFloat(document.getElementById('customTotalContribution').value);
+    
+    let totalMemberPool = 0;
+    members.forEach(item => {
+      if (item.role !== 'investor') totalMemberPool += getMemberTotalContribution(item);
+    });
+    const activePool = !isNaN(customContribInput) ? customContribInput : totalMemberPool;
+
+    const share = activePool > 0 ? (totalContrib / activePool) * 100 : 0;
+    const grossInterest = (share / 100) * overallInterest;
+    const feePercent = m.fee !== undefined ? parseFloat(m.fee) || 0 : 0;
+    const feeAmount = (feePercent / 100) * grossInterest;
+    const netInterest = grossInterest - feeAmount;
+
+    document.getElementById('mShare').innerText = share.toFixed(2);
+    document.getElementById('mNetInterest').innerText = netInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('mFee').innerText = feeAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    const overridePts = calculateMemberOverridePoints(m);
+    const pointVal = parseFloat(document.getElementById('pointValueInput').value) || 100;
+    const overrideVal = overridePts * pointVal;
+
+    document.getElementById('mReferralPoints').innerText = overridePts;
+    document.getElementById('mReferralValue').innerText = '₱' + overrideVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('mOverridePointsText').innerText = overridePts + ' pts';
+    document.getElementById('mPointConversionVal').innerText = pointVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('mOverrideBonusValue').innerText = '₱' + overrideVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    // Cash out container for override bonus
+    const cashoutContainer = document.getElementById('mCashoutBtnContainer');
+    if (overrideVal > 0) {
+      cashoutContainer.innerHTML = `<button class="btn btn-cashout" onclick="requestCashout('${m.id}')"><i class="fa-solid fa-money-check-dollar"></i> Cash Out Points</button>`;
+    } else {
+      cashoutContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted);">No bonus to withdraw</span>`;
+    }
+
+    // Fund breakdown details
+    document.getElementById('mPoolContribution').innerText = activePool.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('mPoolInterest').innerText = overallInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('mGrossInterest').innerText = grossInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('mReferralRewardDetail').innerText = '₱' + overrideVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    // Total loan release display in member portal breakdown
+    let totalLoanReleaseVal = 0;
+    debtors.forEach(d => {
+      totalLoanReleaseVal += parseFloat(d.principal) || 0;
+    });
+    const mTotalLoanReleaseEl = document.getElementById('mTotalLoanRelease');
+    if (mTotalLoanReleaseEl) {
+      mTotalLoanReleaseEl.innerText = totalLoanReleaseVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    const newNetBalance = totalContrib + netInterest + overrideVal;
+    document.getElementById('mTotalBalance').innerText = newNetBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    // Net Balance Payout Button Container
+    const payoutContainer = document.getElementById('mNetBalancePayoutBtnContainer');
+    if (m.netBalanceFullyPaid) {
+      payoutContainer.innerHTML = `<span class="badge-fully-paid" style="font-size:0.85rem; padding:6px 12px;"><i class="fa-solid fa-check-circle"></i> Payout Fully Completed & Settled</span>`;
+    } else if (m.netBalancePayoutRequested) {
+      payoutContainer.innerHTML = `<span class="badge-pay-note" style="font-size:0.85rem; padding:6px 12px;"><i class="fa-solid fa-clock"></i> Payout Request Pending Admin Approval</span>`;
+    } else {
+      payoutContainer.innerHTML = `<button class="btn btn-gcash" style="background-color:#16a34a;" onclick="requestNetBalancePayout('${m.id}')"><i class="fa-solid fa-paper-plane"></i> Request Pay Out (Send to Admin)</button>`;
+    }
+
+    // Populate history table
+    const histBody = document.getElementById('memberHistoryTableBody');
+    histBody.innerHTML = '';
+    if (m.history && m.history.length > 0) {
+      m.history.forEach(h => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${h.date || 'N/A'}</td>
+          <td>${h.type || 'Contribution'}</td>
+          <td class="text-right ${h.amount < 0 ? 'text-red' : 'text-green'}">₱${(parseFloat(h.amount) || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        `;
+        histBody.appendChild(tr);
+      });
+    } else {
+      histBody.innerHTML = `<tr><td colspan="3" class="text-center" style="color:var(--text-muted)">No contribution history found.</td></tr>`;
+    }
+
+    // Build network tree
+    renderNetworkTree(m);
+    renderMemberCharts(m, activePool, overallInterest);
+  }
+
+  function requestCashout(memberId) {
+    Swal.fire({
+      title: 'Request Cash Out Override Points?',
+      text: 'Are you sure you want to request payout for your override referral points? Admin will review and process your request.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#16a34a',
+      confirmButtonText: 'Yes, Submit Request'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire('Submitted!', 'Your override points cash out request has been sent to admin.', 'success');
+      }
+    });
+  }
+
+  function requestNetBalancePayout(memberId) {
+    const member = members.find(item => item.id === memberId);
+    if (!member) return;
+
+    Swal.fire({
+      title: 'Confirm Net Balance Payout Request',
+      text: 'Are you sure you want to request a complete payout of your New Net Balance? This will notify admin to process your cash disbursement.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#16a34a',
+      confirmButtonText: 'Yes, Request Payout'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        member.netBalancePayoutRequested = true;
+        saveMembersToLocal();
+
+        if (firebaseEnabled && db) {
+          db.collection('members').doc(memberId).update({
+            netBalancePayoutRequested: true
+          }).catch(err => console.warn("Firebase payout request error:", err));
+        }
+
+        renderMemberDashboard(member);
+        renderTable();
+        Swal.fire('Requested!', 'Your payout request has been successfully sent to admin for approval.', 'success');
+      }
+    });
+  }
+
+  function renderNetworkTree(member) {
+    const container = document.getElementById('networkTreeContainer');
+    if (!container) return;
+
+    const l1 = members.filter(item => item.referrerId === member.id);
+    
+    let html = `
+      <div class="network-tree-ul">
+        <div class="network-tree-li">
+          <div class="tree-node-card root">
+            <div class="tree-node-avatar"><i class="fa-solid fa-user-tie"></i></div>
+            <div style="font-weight:700; font-size:0.85rem;">${member.name}</div>
+            <div class="small-subtext">You (Root)</div>
+          </div>
+    `;
+
+    if (l1.length > 0) {
+      html += `<ul class="network-tree-ul">`;
+      l1.forEach(child1 => {
+        const l2 = members.filter(item => item.referrerId === child1.id);
+        html += `
+          <div class="network-tree-li">
+            <div class="tree-node-card level-1">
+              <div class="tree-node-avatar"><i class="fa-solid fa-user"></i></div>
+              <div style="font-weight:600; font-size:0.8rem;">${child1.name}</div>
+              <div class="small-subtext">Level 1</div>
+            </div>
+        `;
+
+        if (l2.length > 0) {
+          html += `<ul class="network-tree-ul">`;
+          l2.forEach(child2 => {
+            const l3 = members.filter(item => item.referrerId === child2.id);
+            html += `
+              <div class="network-tree-li">
+                <div class="tree-node-card level-2">
+                  <div class="tree-node-avatar"><i class="fa-solid fa-user-tag"></i></div>
+                  <div style="font-weight:600; font-size:0.75rem;">${child2.name}</div>
+                  <div class="small-subtext">Level 2</div>
+                </div>
+            `;
+
+            if (l3.length > 0) {
+              html += `<ul class="network-tree-ul">`;
+              l3.forEach(child3 => {
+                html += `
+                  <div class="network-tree-li">
+                    <div class="tree-node-card level-3">
+                      <div class="tree-node-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                      <div style="font-weight:600; font-size:0.7rem;">${child3.name}</div>
+                      <div class="small-subtext">Level 3</div>
+                    </div>
+                  </div>
+                `;
+              });
+              html += `</ul>`;
+            }
+
+            html += `</div>`;
+          });
+          html += `</ul>`;
+        }
+
+        html += `</div>`;
+      });
+      html += `</ul>`;
+    }
+
+    html += `</div></div>`;
+    container.innerHTML = html;
+  }
+
+  function showGcashQrModal() {
+    Swal.fire({
+      title: 'GCASH Contribution Payment',
+      html: `
+        <div style="text-align:center;">
+          <p style="font-size:0.9rem; color:#64748b; margin-bottom:12px;">Scan the QR code below or send to official TIF GCash account:</p>
+          <div style="background:#f1f5f9; padding:15px; border-radius:12px; display:inline-block; border:1px solid #cbd5e1; margin-bottom:12px;">
+            <i class="fa-solid fa-qrcode" style="font-size:120px; color:#005ce6;"></i>
+          </div>
+          <p style="font-weight:700; font-size:1.05rem; margin:0 0 4px 0;">TYLER'S INTEGRATED FARM</p>
+          <p style="font-family:'JetBrains Mono',monospace; font-weight:700; color:#005ce6; font-size:1.15rem; margin:0;">0912-345-6789</p>
+          <p style="font-size:0.8rem; color:#64748b; margin-top:10px;">Please take a screenshot of your receipt and send it to admin for verification and capital top-up.</p>
+        </div>
+      `,
+      confirmButtonText: 'Done / Close',
+      confirmButtonColor: '#005ce6'
+    });
+  }
+
+  function downloadMemberPortalDetails() {
+    window.print();
+  }
+
+  // --- RENDER INVESTOR DASHBOARD ---
+  function renderInvestorDashboard(inv) {
+    document.getElementById('investorNameDisplay').innerText = inv.name;
+
+    const capital = getMemberTotalContribution(inv);
+    const rate = parseFloat(inv.investorInterestRate) || 15;
+    const term = parseInt(inv.investorLoanTerm) || 12;
+    const rateType = inv.investorRateType || 'Fixed rate';
+    const returns = calculateInvestorReturns(capital, rate, term, rateType);
+    const feePercent = inv.fee !== undefined ? parseFloat(inv.fee) || 0 : 0;
+    const feeAmount = (feePercent / 100) * returns;
+    const netReturns = returns - feeAmount;
+    const valuation = capital + netReturns;
+
+    document.getElementById('invCapital').innerText = capital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('invReturns').innerText = netReturns.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('invTermDisplay').innerText = `${term} Months (${rateType} @ ${rate}%)`;
+    document.getElementById('invFeeDisplay').innerText = feeAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('invValuation').innerText = valuation.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+    // Populate investor history
+    const histBody = document.getElementById('investorHistoryTableBody');
+    const ledgerBody = document.getElementById('investorLedgerBody');
+    histBody.innerHTML = '';
+    ledgerBody.innerHTML = '';
+
+    if (inv.history && inv.history.length > 0) {
+      inv.history.forEach(h => {
+        const tr1 = document.createElement('tr');
+        tr1.innerHTML = `
+          <td>${h.date || 'N/A'}</td>
+          <td>${h.type || 'Tranche Contribution'}</td>
+          <td class="text-right text-green">₱${(parseFloat(h.amount) || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        `;
+        histBody.appendChild(tr1);
+
+        const tr2 = document.createElement('tr');
+        tr2.innerHTML = `
+          <td>${h.date || 'N/A'}</td>
+          <td>${h.type || 'Investment Tranche'} (${term} mos - ${rateType})</td>
+          <td class="text-right text-bold">₱${(parseFloat(h.amount) || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          <td class="text-center"><span class="badge-fully-paid">Active Tranche</span></td>
+        `;
+        ledgerBody.appendChild(tr2);
+      });
+    } else {
+      histBody.innerHTML = `<tr><td colspan="3" class="text-center" style="color:var(--text-muted)">No investor history found.</td></tr>`;
+      ledgerBody.innerHTML = `<tr><td colspan="4" class="text-center" style="color:var(--text-muted)">No ledger records found.</td></tr>`;
+    }
+
+    renderInvestorCharts(inv, capital, netReturns);
+  }
+
+  // --- CHARTS INITIALIZATION & RENDERING ---
+  function renderAdminCharts() {
+    // 1. Admin Summary Chart (Weekly, Monthly, Yearly Total Contributions)
+    const ctxSummary = document.getElementById('adminSummaryChart');
+    if (ctxSummary) {
+      let totalCap = 0;
+      members.forEach(m => totalCap += getMemberTotalContribution(m));
+
+      if (adminSummaryChartInstance) adminSummaryChartInstance.destroy();
+      adminSummaryChartInstance = new Chart(ctxSummary, {
+        type: 'bar',
+        data: {
+          labels: ['Weekly Pool', 'Monthly Pool', 'Yearly Total Capital'],
+          datasets: [{
+            label: 'Total Contributions (₱)',
+            data: [totalCap * 0.25, totalCap * 0.75, totalCap],
+            backgroundColor: ['#3b82f6', '#0d9488', '#16a34a'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // 2. Admin Members Chart (Top Share Contributions)
+    const ctxMembers = document.getElementById('adminMembersChart');
+    if (ctxMembers) {
+      const sorted = [...members].sort((a, b) => getMemberTotalContribution(b) - getMemberTotalContribution(a)).slice(0, 5);
+      const labels = sorted.map(m => m.name);
+      const dataVals = sorted.map(m => getMemberTotalContribution(m));
+
+      if (adminMembersChartInstance) adminMembersChartInstance.destroy();
+      adminMembersChartInstance = new Chart(ctxMembers, {
+        type: 'doughnut',
+        data: {
+          labels: labels.length > 0 ? labels : ['No Members'],
+          datasets: [{
+            data: dataVals.length > 0 ? dataVals : [1],
+            backgroundColor: ['#1e40af', '#3b82f6', '#0d9488', '#16a34a', '#f59e0b']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
       });
     }
   }
 
-  function renderInvestorDashboard(investor) {
-    const investorTotalCapital = getMemberTotalContribution(investor);
-    const interestRate = investor.interestRate !== undefined ? parseFloat(investor.interestRate) : 15;
-    const loanTerm = investor.loanTerm !== undefined ? parseInt(investor.loanTerm) : 12;
-    const feePercent = investor.feePercent !== undefined ? parseFloat(investor.feePercent) : 0;
-    const rateType = investor.rateType || 'Fixed rate';
-
-    const returnsEarned = calculateInvestorReturns(investorTotalCapital, interestRate, loanTerm, rateType);
-    const feeAmount = returnsEarned * (feePercent / 100);
-    const netReturns = returnsEarned - feeAmount;
-    const totalValuation = investorTotalCapital + netReturns;
-
-    document.getElementById('investorNameDisplay').innerText = investor.name;
-    document.getElementById('invCapital').innerText = investorTotalCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('invReturns').innerText = netReturns.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('invTermDisplay').innerText = `${loanTerm} Mos @ ${interestRate}% (${rateType})`;
-    document.getElementById('invFeeDisplay').innerText = feeAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('invValuation').innerText = totalValuation.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-    const historyTbody = document.getElementById('investorHistoryTableBody');
-    if (historyTbody) {
-      historyTbody.innerHTML = '';
-      if (investor.history && investor.history.length > 0) {
-        investor.history.forEach(h => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${h.date || 'N/A'}</td>
-            <td>${h.type || 'Investor Capital Tranche'}</td>
-            <td class="text-right ${h.amount < 0 ? 'text-red' : 'text-green'}">₱${Number(h.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-          `;
-          historyTbody.appendChild(tr);
-        });
-      } else {
-        historyTbody.innerHTML = `<tr><td colspan="3" class="text-center" style="color:var(--text-muted);">No investor contribution records found.</td></tr>`;
-      }
+  function renderMemberCharts(m, activePool, overallInterest) {
+    // 1. Member Summary Chart
+    const ctxSummary = document.getElementById('memberSummaryChart');
+    if (ctxSummary) {
+      const myCap = getMemberTotalContribution(m);
+      if (memberSummaryChartInstance) memberSummaryChartInstance.destroy();
+      memberSummaryChartInstance = new Chart(ctxSummary, {
+        type: 'bar',
+        data: {
+          labels: ['Your Capital', 'Pool Total', 'Total Interest'],
+          datasets: [{
+            data: [myCap, activePool, overallInterest],
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#16a34a'],
+            borderRadius: 6
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+      });
     }
 
-    const ledgerTbody = document.getElementById('investorLedgerBody');
-    if (ledgerTbody) {
-      ledgerTbody.innerHTML = `
-        <tr>
-          <td>${investor.history && investor.history.length > 0 ? investor.history[0].date : '2026-01-15'}</td>
-          <td>Custom Investor Term Tranche (${loanTerm} Months @ ${interestRate}% Interest - ${rateType})</td>
-          <td class="text-right text-bold">₱${investorTotalCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-          <td class="text-center text-green">Active / Verified</td>
-        </tr>
-        <tr>
-          <td>--</td>
-          <td>Projected Net Dividend Return (${interestRate}% ROI via ${rateType} less ${feePercent}% fee)</td>
-          <td class="text-right text-bold text-green">₱${netReturns.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-          <td class="text-center text-green">Accrued</td>
-        </tr>
-      `;
+    // 2. Member History Chart
+    const ctxHistory = document.getElementById('memberHistoryChart');
+    if (ctxHistory) {
+      const historyLabels = m.history ? m.history.map(h => h.date) : ['Start'];
+      const historyVals = m.history ? m.history.map(h => h.amount) : [getMemberTotalContribution(m)];
+
+      if (memberHistoryChartInstance) memberHistoryChartInstance.destroy();
+      memberHistoryChartInstance = new Chart(ctxHistory, {
+        type: 'line',
+        data: {
+          labels: historyLabels,
+          datasets: [{
+            label: 'Contribution Amount (₱)',
+            data: historyVals,
+            borderColor: '#0d9488',
+            backgroundColor: 'rgba(13, 148, 136, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
     }
 
+    // 3. Member Share Chart
+    const ctxShare = document.getElementById('memberShareChart');
+    if (ctxShare) {
+      const sorted = [...members].sort((a, b) => getMemberTotalContribution(b) - getMemberTotalContribution(a)).slice(0, 4);
+      const labels = sorted.map(item => item.name);
+      const dataVals = sorted.map(item => getMemberTotalContribution(item));
+
+      if (memberShareChartInstance) memberShareChartInstance.destroy();
+      memberShareChartInstance = new Chart(ctxShare, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataVals,
+            backgroundColor: ['#1e40af', '#3b82f6', '#16a34a', '#f59e0b']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  }
+
+  function renderInvestorCharts(inv, capital, netReturns) {
     const ctxGrowth = document.getElementById('investorGrowthChart');
     if (ctxGrowth) {
+      const histLabels = inv.history ? inv.history.map(h => h.date) : ['Start'];
+      const histVals = inv.history ? inv.history.map(h => h.amount) : [capital];
+
       if (investorGrowthChartInstance) investorGrowthChartInstance.destroy();
-      const sortedHistory = (investor.history || []).slice().sort((a,b) => new Date(a.date) - new Date(b.date));
       investorGrowthChartInstance = new Chart(ctxGrowth, {
         type: 'line',
         data: {
-          labels: sortedHistory.map(h => h.date),
+          labels: histLabels,
           datasets: [{
-            label: 'Investor Capital Tranches (₱)',
-            data: sortedHistory.map(h => h.amount),
+            label: 'Tranche Capital (₱)',
+            data: histVals,
             borderColor: '#0d9488',
             backgroundColor: 'rgba(13, 148, 136, 0.1)',
             fill: true,
@@ -2539,780 +3161,21 @@ Thank you for investing with Tyler's Integrated Farm!
 
     const ctxAlloc = document.getElementById('investorAllocationChart');
     if (ctxAlloc) {
-      if (investorAllocationChartInstance) investorAllocationChartInstance.destroy();
-      
-      let totalMembersPoolVal = 0;
-      let totalInvestorsVal = 0;
-      members.forEach(m => {
-        const cap = getMemberTotalContribution(m);
-        if (m.role === 'investor') totalInvestorsVal += cap;
-        else totalMembersPoolVal += cap;
-      });
+      let totalMemberPool = 0;
+      members.forEach(item => { if (item.role !== 'investor') totalMemberPool += getMemberTotalContribution(item); });
 
+      if (investorAllocationChartInstance) investorAllocationChartInstance.destroy();
       investorAllocationChartInstance = new Chart(ctxAlloc, {
         type: 'doughnut',
         data: {
-          labels: ['Members Pool Capital', 'Investors Capital Fund'],
+          labels: ['Your Investor Capital', 'Members Pool Capital'],
           datasets: [{
-            data: [totalMembersPoolVal, totalInvestorsVal],
-            backgroundColor: ['#3b82f6', '#0d9488']
+            data: [capital, totalMemberPool],
+            backgroundColor: ['#0d9488', '#3b82f6']
           }]
         },
         options: { responsive: true, maintainAspectRatio: false }
       });
-    }
-  }
-
-  function renderMemberDashboard(member) {
-    document.getElementById('memberNameDisplay').innerText = member.name;
-    document.getElementById('mBirthDate').innerText = member.birthdate || 'N/A';
-    document.getElementById('mAge').innerText = calculateAge(member.birthdate);
-    document.getElementById('mAddress').innerText = member.address || 'N/A';
-
-    const totalContrib = getMemberTotalContribution(member);
-    document.getElementById('mContribution').innerText = totalContrib.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-    let totalPool = recalculatePoolAndTotals();
-
-    const overallInterest = parseFloat(document.getElementById('overallInterest').value) || 0;
-    const sharePercent = totalPool > 0 ? (totalContrib / totalPool) * 100 : 0;
-    document.getElementById('mShare').innerText = sharePercent.toFixed(2);
-
-    const grossMemberInterest = overallInterest * (sharePercent / 100);
-    const feePercent = member.feePercent !== undefined ? parseFloat(member.feePercent) : 0;
-    const feeAmount = grossMemberInterest * (feePercent / 100);
-    const netMemberInterest = grossMemberInterest - feeAmount;
-
-    document.getElementById('mNetInterest').innerText = netMemberInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('mFee').innerText = feeAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-    const pointVal = parseFloat(document.getElementById('pointValueInput').value) || 100;
-    const refPoints = parseFloat(member.referralPoints) || 0;
-    const refVal = refPoints * pointVal;
-
-    document.getElementById('mReferralPoints').innerText = refPoints;
-    document.getElementById('mReferralValue').innerText = formatCurrency(refVal);
-    document.getElementById('mOverridePointsText').innerText = `${refPoints} pts`;
-    document.getElementById('mPointConversionVal').innerText = pointVal.toFixed(2);
-    document.getElementById('mOverrideBonusValue').innerText = formatCurrency(refVal);
-
-    const cashoutContainer = document.getElementById('mCashoutBtnContainer');
-    if (member.cashoutRequested) {
-      cashoutContainer.innerHTML = `<span class="badge-pay-note"><i class="fa-solid fa-clock"></i> Cash Out Requested (Pending)</span>`;
-    } else {
-      cashoutContainer.innerHTML = `<button class="btn btn-cashout" onclick="requestCashOut('${member.id}')"><i class="fa-solid fa-money-check-dollar"></i> Request Cash Out</button>`;
-    }
-
-    document.getElementById('mPoolContribution').innerText = totalPool.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('mPoolInterest').innerText = overallInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('mGrossInterest').innerText = grossMemberInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('mReferralRewardDetail').innerText = formatCurrency(refVal);
-
-    const totalNetBalance = totalContrib + netMemberInterest + refVal;
-    document.getElementById('mTotalBalance').innerText = totalNetBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-    const netPayoutContainer = document.getElementById('mNetBalancePayoutBtnContainer');
-    if (member.netBalanceFullyPaid) {
-      netPayoutContainer.innerHTML = `<span class="badge-fully-paid"><i class="fa-solid fa-circle-check"></i> Fully Paid & Deducted</span>`;
-    } else if (member.netBalancePayoutRequested) {
-      netPayoutContainer.innerHTML = `<span class="badge-pay-note"><i class="fa-solid fa-clock"></i> Pay Out Requested (Pending Approval)</span>`;
-    } else {
-      netPayoutContainer.innerHTML = `<button class="btn btn-gcash" style="background-color: #16a34a;" onclick="requestNetBalancePayout()"><i class="fa-solid fa-money-bill-transfer"></i> REQUEST NET BALANCE PAY OUT</button>`;
-    }
-
-    renderMemberNetworkTree(member);
-
-    const histTable = document.getElementById('memberHistoryTableBody');
-    if (histTable) {
-      histTable.innerHTML = '';
-      if (member.history && member.history.length > 0) {
-        member.history.forEach(h => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${h.date || 'N/A'}</td>
-            <td>${h.type || 'Contribution / Top-up'}</td>
-            <td class="text-right ${h.amount < 0 ? 'text-red' : 'text-green'}">₱${Number(h.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-          `;
-          histTable.appendChild(tr);
-        });
-      } else {
-        histTable.innerHTML = `<tr><td colspan="3" class="text-center" style="color:var(--text-muted);">No contribution history found.</td></tr>`;
-      }
-    }
-
-    renderMemberCharts(member, totalPool, overallInterest);
-  }
-
-  function renderMemberNetworkTree(member) {
-    const container = document.getElementById('networkTreeContainer');
-    if (!container) return;
-
-    const directReferrals = members.filter(m => m.referrerId === member.id);
-    
-    let html = `
-      <div class="tree-node-card root">
-        <div class="tree-node-avatar"><i class="fa-solid fa-user-shield"></i></div>
-        <div style="font-weight:700; font-size:0.85rem;">${member.name} (You)</div>
-        <div class="small-subtext">Capital: ₱${getMemberTotalContribution(member).toLocaleString()}</div>
-      </div>
-    `;
-
-    if (directReferrals.length > 0) {
-      html += `<ul class="network-tree-ul">`;
-      directReferrals.forEach(l1 => {
-        const l2s = members.filter(m => m.referrerId === l1.id);
-        html += `
-          <li class="network-tree-li">
-            <div class="tree-node-card level-1">
-              <div class="tree-node-avatar"><i class="fa-solid fa-user"></i></div>
-              <div style="font-weight:600; font-size:0.8rem;">${l1.name}</div>
-              <div class="small-subtext">L1 Direct (₱${getMemberTotalContribution(l1).toLocaleString()})</div>
-            </div>
-        `;
-
-        if (l2s.length > 0) {
-          html += `<ul class="network-tree-ul">`;
-          l2s.forEach(l2 => {
-            const l3s = members.filter(m => m.referrerId === l2.id);
-            html += `
-              <li class="network-tree-li">
-                <div class="tree-node-card level-2">
-                  <div class="tree-node-avatar"><i class="fa-solid fa-user"></i></div>
-                  <div style="font-weight:600; font-size:0.75rem;">${l2.name}</div>
-                  <div class="small-subtext">L2 Indirect (₱${getMemberTotalContribution(l2).toLocaleString()})</div>
-                </div>
-            `;
-
-            if (l3s.length > 0) {
-              html += `<ul class="network-tree-ul">`;
-              l3s.forEach(l3 => {
-                html += `
-                  <li class="network-tree-li">
-                    <div class="tree-node-card level-3">
-                      <div class="tree-node-avatar"><i class="fa-solid fa-user"></i></div>
-                      <div style="font-weight:600; font-size:0.7rem;">${l3.name}</div>
-                      <div class="small-subtext">L3 Indirect (₱${getMemberTotalContribution(l3).toLocaleString()})</div>
-                    </div>
-                  </li>
-                `;
-              });
-              html += `</ul>`;
-            }
-
-            html += `</li>`;
-          });
-          html += `</ul>`;
-        }
-
-        html += `</li>`;
-      });
-      html += `</ul>`;
-    }
-
-    container.innerHTML = html;
-  }
-
-  function renderMemberCharts(member, totalPool, overallInterest) {
-    const timeContribs = calculateTimebasedContributions([member]);
-
-    const ctxSummary = document.getElementById('memberSummaryChart');
-    if (ctxSummary) {
-      if (memberSummaryChartInstance) memberSummaryChartInstance.destroy();
-      memberSummaryChartInstance = new Chart(ctxSummary, {
-        type: 'bar',
-        data: {
-          labels: ['Weekly', 'Monthly', 'Yearly'],
-          datasets: [{
-            label: 'Personal Contributions (₱)',
-            data: [timeContribs.weekly, timeContribs.monthly, timeContribs.yearly],
-            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-
-    const ctxHistory = document.getElementById('memberHistoryChart');
-    if (ctxHistory) {
-      if (memberHistoryChartInstance) memberHistoryChartInstance.destroy();
-      const sortedHistory = (member.history || []).slice().sort((a,b) => new Date(a.date) - new Date(b.date));
-      memberHistoryChartInstance = new Chart(ctxHistory, {
-        type: 'line',
-        data: {
-          labels: sortedHistory.map(h => h.date),
-          datasets: [{
-            label: 'Contribution Trend (₱)',
-            data: sortedHistory.map(h => h.amount),
-            borderColor: '#1e40af',
-            backgroundColor: 'rgba(30, 64, 175, 0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-
-    const ctxShare = document.getElementById('memberShareChart');
-    if (ctxShare) {
-      if (memberShareChartInstance) memberShareChartInstance.destroy();
-      const memberContrib = getMemberTotalContribution(member);
-      const otherPool = Math.max(0, totalPool - memberContrib);
-
-      memberShareChartInstance = new Chart(ctxShare, {
-        type: 'doughnut',
-        data: {
-          labels: ['Your Share', 'Other Members Pool'],
-          datasets: [{
-            data: [memberContrib, otherPool],
-            backgroundColor: ['#16a34a', '#cbd5e1']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-  }
-
-  function renderAdminCharts() {
-    const timeContribs = calculateTimebasedContributions();
-
-    const ctxSummary = document.getElementById('adminSummaryChart');
-    if (ctxSummary) {
-      if (adminSummaryChartInstance) adminSummaryChartInstance.destroy();
-      adminSummaryChartInstance = new Chart(ctxSummary, {
-        type: 'bar',
-        data: {
-          labels: ['Weekly Total', 'Monthly Total', 'Yearly Total'],
-          datasets: [{
-            label: 'Contributions Overview (₱)',
-            data: [timeContribs.weekly, timeContribs.monthly, timeContribs.yearly],
-            backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-
-    const ctxMembers = document.getElementById('adminMembersChart');
-    if (ctxMembers) {
-      if (adminMembersChartInstance) adminMembersChartInstance.destroy();
-      const sortedMembers = members.slice().sort((a,b) => getMemberTotalContribution(b) - getMemberTotalContribution(a)).slice(0, 5);
-
-      adminMembersChartInstance = new Chart(ctxMembers, {
-        type: 'pie',
-        data: {
-          labels: sortedMembers.map(m => m.name),
-          datasets: [{
-            data: sortedMembers.map(m => getMemberTotalContribution(m)),
-            backgroundColor: ['#1e40af', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-  }
-
-  function renderTable() {
-    const tbody = document.getElementById('memberTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    let totalPoolContribution = 0;
-    let totalInvestorCapital = 0;
-    let totalInterestDistributed = 0;
-    let totalProcessingFees = 0;
-
-    const overallInterest = parseFloat(document.getElementById('overallInterest').value) || 0;
-    const computedPool = recalculatePoolAndTotals();
-
-    members.forEach(m => {
-      const totalCap = getMemberTotalContribution(m);
-      if (m.role === 'investor') {
-        totalInvestorCapital += totalCap;
-      } else {
-        totalPoolContribution += totalCap;
-      }
-    });
-
-    const customContribVal = document.getElementById('customTotalContribution').value;
-    const effectivePool = (customContribVal !== '' && !isNaN(parseFloat(customContribVal))) ? parseFloat(customContribVal) : totalPoolContribution;
-
-    document.getElementById('totalContributionDisplay').innerText = totalPoolContribution.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('totalInvestorCapitalDisplay').innerText = totalInvestorCapital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-    members.forEach((m, index) => {
-      const totalCap = getMemberTotalContribution(m);
-      const feePercent = m.feePercent !== undefined ? parseFloat(m.feePercent) : 0;
-      const role = m.role || 'member';
-
-      let sharePercent = 0;
-      let netReturn = 0;
-      let feeAmount = 0;
-      let netBalance = 0;
-      let termDisplayStr = '-';
-
-      if (role === 'investor') {
-        const rate = m.interestRate !== undefined ? parseFloat(m.interestRate) : 15;
-        const term = m.loanTerm !== undefined ? parseInt(m.loanTerm) : 12;
-        const rateType = m.rateType || 'Fixed rate';
-        const returnsEarned = calculateInvestorReturns(totalCap, rate, term, rateType);
-        feeAmount = returnsEarned * (feePercent / 100);
-        netReturn = returnsEarned - feeAmount;
-        netBalance = totalCap + netReturn;
-        termDisplayStr = `${term} Mos @ ${rate}% (${rateType})`;
-      } else {
-        sharePercent = effectivePool > 0 ? (totalCap / effectivePool) * 100 : 0;
-        const grossReturn = overallInterest * (sharePercent / 100);
-        feeAmount = grossReturn * (feePercent / 100);
-        netReturn = grossReturn - feeAmount;
-        
-        const pointVal = parseFloat(document.getElementById('pointValueInput').value) || 100;
-        const refPoints = parseFloat(m.referralPoints) || 0;
-        const refVal = refPoints * pointVal;
-
-        netBalance = totalCap + netReturn + refVal;
-        termDisplayStr = `${sharePercent.toFixed(2)}%`;
-      }
-
-      totalInterestDistributed += netReturn;
-      totalProcessingFees += feeAmount;
-
-      const tr = document.createElement('tr');
-      tr.setAttribute('data-name', (m.name || '').toLowerCase());
-      tr.setAttribute('data-username', (m.username || '').toLowerCase());
-      tr.setAttribute('data-role', role.toLowerCase());
-      tr.setAttribute('data-address', (m.address || '').toLowerCase());
-
-      const roleBadge = role === 'investor' 
-        ? `<span class="badge-role-investor">Investor</span>` 
-        : `<span class="badge-role-member">Member</span>`;
-
-      let cashoutActionHTML = '';
-      if (m.cashoutRequested) {
-        cashoutActionHTML = `<button class="btn-admin-pay" onclick="adminPayBonus('${m.id}')">PAY ₱${((m.referralPoints || 0) * (parseFloat(document.getElementById('pointValueInput').value) || 100)).toLocaleString()}</button>`;
-      }
-
-      let netBalancePayoutHTML = '';
-      if (m.netBalanceFullyPaid) {
-        netBalancePayoutHTML = `<span class="badge-fully-paid"><i class="fa-solid fa-circle-check"></i> Fully Paid</span>`;
-      } else if (m.netBalancePayoutRequested) {
-        netBalancePayoutHTML = `<button class="btn-admin-pay" style="background-color:#16a34a;" onclick="adminConfirmNetBalancePayment('${m.id}')"><i class="fa-solid fa-money-bill-transfer"></i> PAY OUT & DEDUCT</button>`;
-      }
-
-      tr.innerHTML = `
-        <td>
-          <div class="text-bold">${m.name} ${roleBadge}</div>
-          <span class="small-subtext">@${m.username || 'nouser'}</span>
-          ${cashoutActionHTML}
-          ${netBalancePayoutHTML}
-        </td>
-        <td>
-          <div>${m.address || 'N/A'}</div>
-          <span class="small-subtext">Age: ${calculateAge(m.birthdate)} (${m.birthdate || 'No bday'})</span>
-        </td>
-        <td class="text-right text-bold">₱${totalCap.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td class="text-center">
-          ${m.referralPoints || 0} pts
-          <span class="small-subtext">${formatCurrency((m.referralPoints || 0) * (parseFloat(document.getElementById('pointValueInput').value) || 100))}</span>
-        </td>
-        <td class="text-center">${termDisplayStr}</td>
-        <td class="text-center">
-          <input type="number" class="inline-fee-input" value="${feePercent}" min="0" max="100" step="any" onchange="updateMemberFee('${m.id}', this.value)">%
-        </td>
-        <td class="text-right text-green text-bold">₱${netReturn.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td class="text-right text-bold" style="color: #1e40af;">₱${netBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-        <td class="text-center" style="display: flex; gap: 4px; justify-content: center; align-items: center; padding-top: 12px;">
-          <button class="btn btn-edit" onclick="editMemberDetails('${m.id}')" title="Edit Profile"><i class="fa-solid fa-pen-to-square"></i></button>
-          <button class="btn btn-outline-danger" onclick="deleteMember('${m.id}')" title="Delete User"><i class="fa-solid fa-trash"></i></button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById('totalInterestDisplay').innerText = totalInterestDistributed.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('totalFeesDisplay').innerText = totalProcessingFees.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    
-    const combinedFund = totalPoolContribution + totalInvestorCapital + overallInterest;
-    document.getElementById('totalFundDisplay').innerText = combinedFund.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-    renderCredentialsTable();
-    renderAdminCharts();
-  }
-
-  function renderCredentialsTable() {
-    const tbody = document.getElementById('credentialsTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    members.forEach(m => {
-      const tr = document.createElement('tr');
-      const roleBadge = m.role === 'investor' ? `<span class="badge-role-investor">Investor</span>` : `<span class="badge-role-member">Member</span>`;
-      tr.innerHTML = `
-        <td class="text-bold">${m.name}</td>
-        <td>${roleBadge}</td>
-        <td>${m.birthdate || 'N/A'} (Age: ${calculateAge(m.birthdate)})</td>
-        <td>${m.address || 'N/A'}</td>
-        <td><input type="text" id="uname_${m.id}" value="${m.username || ''}" style="padding:4px; font-size:0.8rem;"></td>
-        <td><input type="text" id="upass_${m.id}" value="${m.password || ''}" style="padding:4px; font-size:0.8rem;"></td>
-        <td class="text-center">
-          <button class="btn" style="padding:4px 8px; font-size:0.75rem;" onclick="updateCredentials('${m.id}')"><i class="fa-solid fa-floppy-disk"></i> Update</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  async function updateCredentials(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    const uVal = document.getElementById(`uname_${memberId}`).value.trim();
-    const pVal = document.getElementById(`upass_${memberId}`).value.trim();
-
-    if (!uVal) {
-      Swal.fire('Warning', 'Username cannot be empty.', 'warning');
-      return;
-    }
-
-    member.username = uVal;
-    member.password = pVal;
-
-    saveMembersToLocal();
-
-    if (firebaseEnabled && db) {
-      try {
-        await db.collection('members').doc(memberId).update({
-          username: uVal,
-          password: pVal
-        });
-      } catch (err) {
-        console.warn("Firebase credential update warning:", err);
-      }
-    }
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Credentials Updated!',
-      text: `Login details for ${member.name} have been updated.`,
-      confirmButtonColor: '#16a34a'
-    });
-    renderCredentialsTable();
-  }
-
-  async function updateMemberFee(memberId, newFee) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    member.feePercent = parseFloat(newFee) || 0;
-    saveMembersToLocal();
-
-    if (firebaseEnabled && db) {
-      try {
-        await db.collection('members').doc(memberId).update({ feePercent: member.feePercent });
-      } catch (err) {
-        console.warn("Firebase fee update warning:", err);
-      }
-    }
-    renderTable();
-  }
-
-  async function addMember() {
-    const name = document.getElementById('memberName').value.trim();
-    const contrib = parseFloat(document.getElementById('memberContribInput').value) || 0;
-    const role = document.getElementById('memberRoleSelect').value;
-    const fee = parseFloat(document.getElementById('memberFee').value) || 0;
-    const referrerId = document.getElementById('referrerSelect').value;
-    const initialPoints = parseFloat(document.getElementById('memberPointsInput').value) || 0;
-    const birthdate = document.getElementById('memberBirthdate').value;
-    const address = document.getElementById('memberAddress').value.trim();
-    const username = document.getElementById('newUsername').value.trim();
-    const password = document.getElementById('newPassword').value.trim() || 'password123';
-
-    const interestRate = parseFloat(document.getElementById('investorInterestRate').value) || 15;
-    const loanTerm = parseInt(document.getElementById('investorLoanTerm').value) || 12;
-    const rateType = document.getElementById('investorRateType').value || 'Fixed rate';
-
-    if (!name || !username) {
-      Swal.fire('Warning', 'Please enter Full Name and Username.', 'warning');
-      return;
-    }
-
-    const duplicate = members.find(m => m.username && m.username.toLowerCase() === username.toLowerCase());
-    if (duplicate) {
-      Swal.fire('Error', 'Username already exists! Please choose another username.', 'error');
-      return;
-    }
-
-    const currentDate = new Date().toISOString().split('T')[0];
-    const newMemberId = 'm_' + Date.now();
-
-    const newMemberObj = {
-      id: newMemberId,
-      name: name,
-      role: role,
-      feePercent: fee,
-      referrerId: referrerId,
-      referralPoints: initialPoints,
-      birthdate: birthdate,
-      address: address,
-      username: username,
-      password: password,
-      interestRate: interestRate,
-      loanTerm: loanTerm,
-      rateType: rateType,
-      history: [
-        {
-          date: currentDate,
-          type: role === 'investor' ? 'Initial Investment Tranche' : 'Initial Contribution',
-          amount: contrib
-        }
-      ]
-    };
-
-    // Up to 3-Level Reward Points Distribution
-    const level1Pts = parseFloat(document.getElementById('level1Points').value) || 1;
-    const level2Pts = parseFloat(document.getElementById('level2Points').value) || 0.5;
-    const level3Pts = parseFloat(document.getElementById('level3Points').value) || 0.25;
-
-    if (referrerId) {
-      const l1Ref = members.find(m => m.id === referrerId);
-      if (l1Ref) {
-        l1Ref.referralPoints = (parseFloat(l1Ref.referralPoints) || 0) + level1Pts;
-        if (firebaseEnabled && db) {
-          db.collection('members').doc(l1Ref.id).update({ referralPoints: l1Ref.referralPoints }).catch(err => console.warn(err));
-        }
-
-        if (l1Ref.referrerId) {
-          const l2Ref = members.find(m => m.id === l1Ref.referrerId);
-          if (l2Ref) {
-            l2Ref.referralPoints = (parseFloat(l2Ref.referralPoints) || 0) + level2Pts;
-            if (firebaseEnabled && db) {
-              db.collection('members').doc(l2Ref.id).update({ referralPoints: l2Ref.referralPoints }).catch(err => console.warn(err));
-            }
-
-            if (l2Ref.referrerId) {
-              const l3Ref = members.find(m => m.id === l2Ref.referrerId);
-              if (l3Ref) {
-                l3Ref.referralPoints = (parseFloat(l3Ref.referralPoints) || 0) + level3Pts;
-                if (firebaseEnabled && db) {
-                  db.collection('members').doc(l3Ref.id).update({ referralPoints: l3Ref.referralPoints }).catch(err => console.warn(err));
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    members.push(newMemberObj);
-    saveMembersToLocal();
-
-    if (firebaseEnabled && db) {
-      try {
-        await db.collection('members').doc(newMemberId).set(newMemberObj);
-      } catch (err) {
-        console.warn("Firebase add member warning:", err);
-      }
-    }
-
-    document.getElementById('memberName').value = '';
-    document.getElementById('memberContribInput').value = '';
-    document.getElementById('memberBirthdate').value = '';
-    document.getElementById('memberAddress').value = '';
-    document.getElementById('newUsername').value = '';
-    document.getElementById('newPassword').value = '';
-
-    populateTopupMemberDropdown();
-    renderTable();
-
-    Swal.fire({
-      icon: 'success',
-      title: 'User Added Successfully!',
-      text: `${name} has been added as ${role}.`,
-      confirmButtonColor: '#16a34a'
-    });
-  }
-
-  async function addContributionTopUp() {
-    const memberId = document.getElementById('topupMemberSelect').value;
-    const amount = parseFloat(document.getElementById('topupAmount').value) || 0;
-    const date = document.getElementById('topupDate').value || new Date().toISOString().split('T')[0];
-
-    if (!memberId || amount <= 0) {
-      Swal.fire('Warning', 'Please select a member and enter a valid contribution amount.', 'warning');
-      return;
-    }
-
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    if (!member.history) member.history = [];
-    member.history.push({
-      date: date,
-      type: member.role === 'investor' ? 'Additional Investment Tranche' : 'Contribution Top-up',
-      amount: amount
-    });
-
-    saveMembersToLocal();
-
-    if (firebaseEnabled && db) {
-      try {
-        await db.collection('members').doc(memberId).update({ history: member.history });
-      } catch (err) {
-        console.warn("Firebase top-up warning:", err);
-      }
-    }
-
-    document.getElementById('topupAmount').value = '';
-    renderTable();
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Top-up Saved!',
-      text: `Successfully added ₱${amount.toLocaleString()} to ${member.name}.`,
-      confirmButtonColor: '#16a34a'
-    });
-  }
-
-  async function deleteMember(memberId) {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    const confirm = await Swal.fire({
-      title: 'Delete User?',
-      text: `Are you sure you want to delete ${member.name}? This cannot be undone.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#dc2626',
-      confirmButtonText: 'Yes, Delete'
-    });
-
-    if (confirm.isConfirmed) {
-      members = members.filter(m => m.id !== memberId);
-      saveMembersToLocal();
-
-      if (firebaseEnabled && db) {
-        try {
-          await db.collection('members').doc(memberId).delete();
-        } catch (err) {
-          console.warn("Firebase delete warning:", err);
-        }
-      }
-
-      populateTopupMemberDropdown();
-      renderTable();
-
-      Swal.fire('Deleted!', 'User has been removed successfully.', 'success');
-    }
-  }
-
-  async function saveAnnouncement() {
-    const annText = document.getElementById('announcementText').value.trim();
-    currentAnnouncement = annText;
-    await saveFundSettings();
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Announcement Saved!',
-      text: 'Popup announcement has been updated successfully.',
-      confirmButtonColor: '#16a34a'
-    });
-  }
-
-  function filterTables() {
-    const query = document.getElementById('tableSearchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#reportTable tbody tr');
-
-    rows.forEach(row => {
-      const name = row.getAttribute('data-name') || '';
-      const username = row.getAttribute('data-username') || '';
-      const role = row.getAttribute('data-role') || '';
-      const address = row.getAttribute('data-address') || '';
-
-      if (name.includes(query) || username.includes(query) || role.includes(query) || address.includes(query)) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    });
-  }
-
-  function logout() {
-    localStorage.removeItem('tif_active_session');
-    currentLoggedInMember = null;
-
-    document.getElementById('userInfoHeader').classList.add('hidden');
-    document.getElementById('memberDashboard').classList.add('hidden');
-    document.getElementById('investorDashboard').classList.add('hidden');
-    document.getElementById('adminDashboard').classList.add('hidden');
-    document.getElementById('loginSection').classList.remove('hidden');
-
-    document.getElementById('memberUsername').value = '';
-    document.getElementById('memberPassword').value = '';
-    document.getElementById('investorUsername').value = '';
-    document.getElementById('investorPassword').value = '';
-    document.getElementById('adminPass').value = '';
-  }
-
-  // CALCULATOR LOGIC
-  let calcExpression = "0";
-  let calcHistoryStr = "";
-
-  function toggleCalculator() {
-    document.getElementById('floatingCalc').classList.toggle('active');
-  }
-
-  function appendCalc(val) {
-    if (calcExpression === "0" && !isNaN(val)) {
-      calcExpression = val;
-    } else {
-      calcExpression += val;
-    }
-    updateCalcDisplay();
-  }
-
-  function clearCalc() {
-    calcExpression = "0";
-    calcHistoryStr = "";
-    updateCalcDisplay();
-  }
-
-  function updateCalcDisplay() {
-    document.getElementById('calcDisplay').value = calcExpression;
-    document.getElementById('calcHistory').innerText = calcHistoryStr;
-  }
-
-  function calculateCalc() {
-    try {
-      let sanitized = calcExpression.replace(/×/g, '*').replace(/÷/g, '/');
-      let result = eval(sanitized);
-      calcHistoryStr = calcExpression + " =";
-      calcExpression = String(result);
-      updateCalcDisplay();
-    } catch (e) {
-      calcExpression = "Error";
-      updateCalcDisplay();
-      setTimeout(clearCalc, 1200);
-    }
-  }
-
-  function calcFunc(type) {
-    try {
-      let currentVal = parseFloat(calcExpression) || 0;
-      if (type === 'sqrt') {
-        calcHistoryStr = `√(${currentVal}) =`;
-        calcExpression = String(Math.sqrt(currentVal));
-      } else if (type === 'sqr') {
-        calcHistoryStr = `(${currentVal})² =`;
-        calcExpression = String(Math.pow(currentVal, 2));
-      } else if (type === 'pm') {
-        calcExpression = String(currentVal * -1);
-      }
-      updateCalcDisplay();
-    } catch (e) {
-      calcExpression = "Error";
-      updateCalcDisplay();
-      setTimeout(clearCalc, 1200);
     }
   }
 </script>
